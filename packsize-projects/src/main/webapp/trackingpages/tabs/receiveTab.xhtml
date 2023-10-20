@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<p:panel id="searchPO" style="text-align:center;width:100%">
+	<p:messages id="messages" showDetail="true" closable="true" style="text-align:left;"/>
+	<p:spacer height="30"/>
+	<p:panelGrid columns="4" styleClass="ui-noborder">
+		<p:outputLabel value="PO#:"/>
+		<p:inputText value="#{trackingPOBean.trackingPOComponent.poDetails.id}"/>
+		<p:commandButton value="Submit" actionListener="#{trackingPOBean.seachPO}" update="searchPO"/>
+		<p:commandButton value="Reset" actionListener="#{trackingPOBean.reSet}" update="searchPO" />
+	</p:panelGrid>
+	<p:spacer height="30"/>
+	<p:panelGrid rendered="#{trackingPOBean.trackingPOComponent.poDetails.searchPanel}" styleClass="ui-noborder" style="text-align:center;width:100%">
+		<p:row style="text-align:left;color:red">
+			<p:column colspan="2">
+				<p:outputLabel value="PO# #{trackingPOBean.trackingPOComponent.poDetails.id} not found."/>
+			</p:column>
+		</p:row>
+		<p:row>
+			<p:column style="text-align:right;">
+				<p:outputLabel value="Comments:"/>
+			</p:column>
+			<p:column style="text-align:left;">
+				<p:inputTextarea value="#{trackingPOBean.trackingPOComponent.poDetails.poComments}" cols="30"/><br></br>
+				<p:fileUpload value="#{trackingPOBean.trackingPOComponent.poDetails.files}" mode="simple" skinSimple="true" multiple="true"/>
+			</p:column>
+		</p:row>
+		<p:row>
+			<p:column style="text-align:right;">
+				<p:spacer height="10"/>
+			</p:column>
+			<p:column style="text-align:left;">
+				<p:spacer height="10"/>
+			</p:column>
+		</p:row>
+		<p:row>
+			<p:column style="text-align:right;">
+				<p:outputLabel value="Email To:"/>
+			</p:column>
+			<p:column style="text-align:left;">
+				<p:selectOneMenu value="#{trackingPOBean.trackingPOComponent.poDetails.email}"> 
+					<f:selectItem itemLabel="Select One" itemValue=""/>
+					<f:selectItems value="#{trackingPOBean.trackingPOComponent.emailsDropDown}"/>
+				</p:selectOneMenu>
+				<p:spacer width="5"/>
+				<p:commandButton value="send" action="#{trackingPOBean.submit}" ajax="false" />
+			</p:column>
+		</p:row>
+	</p:panelGrid>
+	
+	<p:dataTable id="detailsTable" value="#{trackingPOBean.trackingPOComponent.poDetails.lineItems}" 
+				 var="lineItem" rowIndexVar="rowIndex" tableStyle="width:auto"
+				 rendered="#{trackingPOBean.trackingPOComponent.poDetails.poPanel}" >
+		<p:column headerText="Line"><p:outputLabel value="#{lineItem.line}"/> </p:column>
+		<p:column headerText="Item"><p:outputLabel value="#{lineItem.item}"/> </p:column>
+		<p:column headerText="Plant"><p:outputLabel value="#{lineItem.plant}"/> </p:column>
+		<p:column headerText="Stor.Loca"><p:outputLabel value="#{lineItem.storeLocation}"/> </p:column>
+		<p:column headerText="Material"><p:outputLabel value="#{lineItem.material}"/> </p:column>
+		<p:column headerText="Mat.Short Text"><p:outputLabel value="#{lineItem.matShortText}"/> </p:column>
+		<p:column headerText="PO Quantity"><p:outputLabel value="#{lineItem.poQuantity}"/> </p:column>
+		<p:column headerText="Received"><p:outputLabel value="#{lineItem.received}"/> </p:column>
+		<p:column headerText="Qty in UnE"><p:outputLabel value="#{lineItem.qtyInUne}"/> </p:column>
+		<p:column headerText="Label" style="width:15%">
+			<p:selectOneRadio id="line" value="#{lineItem.label}" unselectable="true" layout="lineDirection">
+		            <f:selectItem itemLabel="One" itemValue="One"/>
+		            <f:selectItem itemLabel="All" itemValue="All"/>
+		        </p:selectOneRadio>
+		</p:column>
+		<p:column headerText="OK"><p:selectBooleanCheckbox widgetVar="ok_#{rowIndex}" onchange="selectOkCheckBoxes('disp_#{rowIndex}')" value="#{lineItem.ok}"/></p:column>
+		<p:column headerText="Discp."><p:selectBooleanCheckbox widgetVar="disp_#{rowIndex}" onchange="selectDiscCheckBoxes('ok_#{rowIndex}')" value="#{lineItem.disc}"/></p:column>
+		<p:column headerText="Reason">
+			<p:selectOneMenu value="#{lineItem.reasonSelection}"> 
+				<f:selectItem itemLabel="Select One" itemValue=""/>
+				<f:selectItems value="#{trackingPOBean.trackingPOComponent.reasonsDropDown}"/>
+			</p:selectOneMenu>
+		</p:column>
+		<p:column headerText="Reason Comments"><p:inputTextarea value="#{lineItem.reasonComment}" cols="15"/> </p:column>
+		<p:column headerText="Upload Files">
+			<p:fileUpload value="#{lineItem.files}" mode="simple" skinSimple="true" multiple="true"/>
+		</p:column>
+		
+		<f:facet name="footer">
+			<div align="center">
+				Email To: <p:selectOneMenu value="#{trackingPOBean.trackingPOComponent.poDetails.email}"> 
+								<f:selectItem itemLabel="Select One" noSelectionOption="true"/>
+								<f:selectItems value="#{trackingPOBean.trackingPOComponent.emailsDropDown}"/>
+							</p:selectOneMenu><p:spacer width="5"/>
+				<p:commandButton value="post" action="#{trackingPOBean.submit}" ajax="false"/>
+			</div>
+		</f:facet>
+	</p:dataTable>
+</p:panel>
+</html>

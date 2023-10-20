@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<script type ="text/javascript">
+		function checkNumber(e){
+			if(isNaN(e.value)){
+				alert("Enter only numbers as dimension values.");
+				e.value = "0";
+			}else if(e.value &lt; 0){
+				alert("Enter positive numbers greater than 0 as dimension values.");
+				e.value = "0";
+			}
+		}
+	</script>
+</h:head>
+<h:body style="margin-left:100px;margin-right:100px;">
+<h:form id="form" enctype="multipart/form-data">
+	<p:messages id="messages" showDetail="true" closable="true"/>
+
+	<p:panel style="text-align:left;width:100%">
+		<f:facet name="header">Instructions</f:facet>
+		<p style="font-size: 15px">Including headers, copy data from Box Data analysis excel document to new excel document. This new file will be our input file for this application to generate article list. </p>
+	</p:panel>
+	<p:panelGrid id="contentPanel" styleClass="ui-noborder" style="text-align:left;width:100%">
+		<f:facet name="header">
+            <p:row>
+                <p:column colspan="3">Generate Article Batch List</p:column>
+            </p:row>
+        </f:facet>
+        <p:row>
+			<p:column style="text-align:right;"><p:outputLabel value="Select Machine : "/></p:column>
+			<p:column><p:selectOneMenu id="selectMachine" value="#{articlesBean.articleComponent.articleDetails.machine}" required="true" requiredMessage="Required Select Machine.">
+				<p:ajax event="change" listener="#{articlesBean.updateDesignValues}" update="form:contentPanel"/>
+				<f:selectItem itemLabel="Select One" noSelectionOption="true"/>
+				<f:selectItem itemLabel="EM" itemValue="EM"/>
+				<f:selectItem itemLabel="IQ" itemValue="IQ"/>
+				<f:selectItem itemLabel="X4" itemValue="X4"/>
+			</p:selectOneMenu></p:column>
+			<p:column><p:tooltip for="selectMachine" position="bottom" value="HINT: select Machine type"/></p:column>
+		</p:row>
+		<p:row>
+            <p:column style="text-align:right;"><p:outputLabel value="Corrugate Quality Required ? "/></p:column>
+			<p:column><p:selectBooleanCheckbox id="corrugateQualityRequired" value="#{articlesBean.articleComponent.articleDetails.corrugateQualityRequired}"/></p:column>
+			<p:column><p:tooltip for="corrugateQualityRequired" value="HINT: Default value is 1, If checked, will assign different numbers to different corrugate." position="bottom"/></p:column>
+        </p:row>
+        <p:row rendered="#{articlesBean.articleComponent.articleDetails.corrugateQuality ne null}">
+			<p:column style="text-align:right;"><p:outputLabel styleClass="fileNameClass" value="Generated Qualities from Input File are: "/></p:column>
+			<p:column><p:outputLabel styleClass="fileNameClass" value="#{articlesBean.articleComponent.articleDetails.corrugateQuality}"/></p:column>
+			<p:column><p:spacer styleClass="fileNameClass"/></p:column>
+		</p:row>
+		<p:row>
+            <p:column style="text-align:right;"><p:outputLabel value="Print Label Required ? "/></p:column>
+			<p:column><p:selectBooleanCheckbox id="printLabelRequired" value="#{articlesBean.articleComponent.articleDetails.labelRequired}">
+							<p:ajax event="change"  update="form:contentPanel"/>
+					  </p:selectBooleanCheckbox></p:column>
+			<p:column><p:tooltip for="printLabelRequired" value="HINT: Default unchecked. If checked, Print Headers and Print Values are required" position="bottom"/></p:column>
+        </p:row>
+        <p:row rendered="#{articlesBean.articleComponent.articleDetails.labelRequired}">
+        	<p:column style="text-align:right;"><p:outputLabel value="Print Headers : "/></p:column>
+			<p:column><p:inputTextarea id="printHeaders" value="#{articlesBean.articleComponent.articleDetails.printHeaders}" required="#{articlesBean.articleComponent.articleDetails.labelRequired}" requiredMessage="Print Headers is required when Print Label is checked."/></p:column>
+			<p:column><p:tooltip for="printHeaders" position="bottom" value="HINT: Define ',' seperated required template values as headers to populate CSV document headers."/></p:column>
+        </p:row>
+        <p:row rendered="#{articlesBean.articleComponent.articleDetails.labelRequired}">
+        	<p:column style="text-align:right;"><p:outputLabel value="Print Data :"/></p:column>
+			<p:column><p:inputTextarea id="printData" value="#{articlesBean.articleComponent.articleDetails.printData}" required="#{articlesBean.articleComponent.articleDetails.labelRequired}" requiredMessage="Print Data is required when Print Label is checked."/></p:column>
+			<p:column><p:tooltip for="printData" position="bottom" value="HINT: Define ',' seperated pre-defined values Design,Length,Width,Height to show respective information on label or use custom as need"/></p:column>
+		</p:row>
+	<ui:remove>
+		<p:row>
+        	<p:column style="text-align:right;"><p:outputLabel value="Max z-fold size :"/></p:column>
+			<p:column><p:inputText id="maxZfold" value="#{articlesBean.articleComponent.articleDetails.maxZfold}" onchange="checkNumber(this);" disabled="true"/></p:column>
+			<p:column><p:tooltip for="maxZfold" position="bottom" value="HINT: Provide max z-fold to swap article DIM's when required."/></p:column>
+		</p:row>
+		<p:row>
+        	<p:column style="text-align:right;"><p:outputLabel value="Fanfold Thinkness :"/></p:column>
+			<p:column><p:inputText id="addFT" value="#{articlesBean.articleComponent.articleDetails.addFT}" onchange="checkNumber(this);" disabled="true"/></p:column>
+			<p:column><p:tooltip for="addFT" position="bottom" value="HINT: Provide Fanfold Thikness."/></p:column>
+		</p:row>
+	</ui:remove>
+		<p:row>
+            <p:column style="text-align:right;"><p:outputLabel value="Add Inches to DIM's ? "/></p:column>
+			<p:column><p:selectBooleanCheckbox id="addInches" value="#{articlesBean.articleComponent.articleDetails.updateDims}">
+							<p:ajax event="change"  update="form:contentPanel"/>
+					  </p:selectBooleanCheckbox></p:column>
+			<p:column><p:tooltip for="addInches" value="HINT: Select if you want to add extra inches to DIM's." position="bottom"/></p:column>
+        </p:row>
+		<p:row rendered="#{articlesBean.articleComponent.articleDetails.updateDims}">
+        	<p:column  style="text-align:right;"><p:outputLabel value="Add inches to Length :"/></p:column>
+			<p:column><p:inputText id="addToL" value="#{articlesBean.articleComponent.articleDetails.addToL}" onchange="checkNumber(this);"/></p:column>
+			<p:column><p:tooltip for="addToL" position="bottom" value="HINT: Add inches to existing Length."/></p:column>
+		</p:row>
+		<p:row rendered="#{articlesBean.articleComponent.articleDetails.updateDims}">
+        	<p:column style="text-align:right;"><p:outputLabel value="Add inches to Width :"/></p:column>
+			<p:column><p:inputText id="addToW" value="#{articlesBean.articleComponent.articleDetails.addToW}" onchange="checkNumber(this);"/></p:column>
+			<p:column><p:tooltip for="addToW" position="bottom" value="HINT: Add inches to existing Width."/></p:column>
+		</p:row>
+		<p:row rendered="#{articlesBean.articleComponent.articleDetails.updateDims}">
+        	<p:column style="text-align:right;"><p:outputLabel value="Add inches to Height :"/></p:column>
+			<p:column><p:inputText id="addToH" value="#{articlesBean.articleComponent.articleDetails.addToH}" onchange="checkNumber(this);"/></p:column>
+			<p:column><p:tooltip for="addToH" position="bottom" value="HINT: Add inches to existing Height."/></p:column>
+		</p:row>
+		<p:row>
+			<p:column style="text-align:right;"><p:outputLabel value="Select File : "/></p:column>
+			<p:column><p:fileUpload id="selectFile" value="#{articlesBean.articleComponent.articleDetails.uploadFile}" mode="simple" skinSimple="true" update="@(.fileNameClass)"/></p:column>
+			<p:column><p:tooltip for="selectFile" position="bottom" value="HINT: upload excel only"/></p:column>
+		</p:row>
+		<p:row rendered="#{articlesBean.articleComponent.articleDetails.uploadFile ne null}">
+			<p:column style="text-align:right;"><p:outputLabel styleClass="fileNameClass" value="Processed File Name: "/></p:column>
+			<p:column><p:outputLabel styleClass="fileNameClass" value="#{articlesBean.articleComponent.articleDetails.uploadFile.fileName}"/></p:column>
+			<p:column><p:spacer styleClass="fileNameClass"/></p:column>
+		</p:row>
+		<p:row id="dimXTable">
+			<p:column colspan="3">
+					<p:spacer height="10"/>
+					<p:dataTable value="#{articlesBean.articleComponent.articleDetails.designs}" var="rec" rendered="#{articlesBean.articleComponent.articleDetails.machine ne null}">
+						<f:facet name="header">Dimension X Values for <p:outputLabel value="#{articlesBean.articleComponent.articleDetails.machine}"/></f:facet>
+						<p:column headerText="Design Name" style="width:15%">
+							<p:outputLabel value="#{rec.designName}"/>
+						</p:column>
+						<p:column headerText="Design ID" style="width:15%">
+							<p:outputLabel value="#{rec.designID}"/>
+						</p:column>
+						<p:column headerText="X1" style="width:5%">
+							<p:inputText value="#{rec.dX1}" rendered="#{rec.dX1 ne null}" onchange="checkNumber(this);" size="1" maxlength="3"/>
+						</p:column>
+						<p:column headerText="X2" style="width:5%">
+							<p:inputText value="#{rec.dX2}" rendered="#{rec.dX2 ne null}" onchange="checkNumber(this);" size="1" maxlength="3"/>
+						</p:column>
+						<p:column headerText="X3" style="width:5%">
+							<p:inputText value="#{rec.dX3}" rendered="#{rec.dX3 ne null}" onchange="checkNumber(this);" size="1" maxlength="3"/>
+						</p:column>
+						<p:column headerText="X4" style="width:5%">
+							<p:inputText value="#{rec.dX4}" rendered="#{rec.dX4 ne null}" onchange="checkNumber(this);" size="1" maxlength="3"/>
+						</p:column>
+						<p:column headerText="X5" style="width:5%">
+							<p:inputText value="#{rec.dX5}" rendered="#{rec.dX5 ne null}" onchange="checkNumber(this);" size="1" maxlength="3"/>
+						</p:column>
+						<p:column headerText="X6" style="width:5%">
+							<p:inputText value="#{rec.dX6}" rendered="#{rec.dX6 ne null}" onchange="checkNumber(this);" size="1" maxlength="3"/>
+						</p:column>
+						<p:column headerText="X7" style="width:5%">
+							<p:inputText value="#{rec.dX7}" rendered="#{rec.dX7 ne null}" onchange="checkNumber(this);" size="1" maxlength="3"/>
+						</p:column>
+						<p:column headerText="X8" style="width:5%">
+							<p:inputText value="#{rec.dX8}" rendered="#{rec.dX8 ne null}" onchange="checkNumber(this);" size="1" maxlength="3"/>
+						</p:column>
+						<p:column headerText="X9" style="width:5%">
+							<p:inputText value="#{rec.dX9}" rendered="#{rec.dX9 ne null}" onchange="checkNumber(this);" size="1" maxlength="3"/>
+						</p:column>
+						<p:column headerText="X10" style="width:5%">
+							<p:inputText value="#{rec.dX10}" rendered="#{rec.dX10 ne null}" onchange="checkNumber(this);" size="1" maxlength="3"/>
+						</p:column>
+					</p:dataTable>
+			</p:column>
+		</p:row>
+		<f:facet name="footer">
+			<p:row>
+				<p:column colspan="3" style="text-align: center">
+                   <p:commandButton value="Generate CSV File" ajax="false" actionListener="#{articlesBean.validations()}" update="@form"/>
+					<p:spacer width="5"/>
+					<p:commandButton disabled="#{articlesBean.articleComponent.articleDetails.file eq null}" value="Download" ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);" icon="pi pi-arrow-down">
+						<p:fileDownload value="#{articlesBean.articleComponent.articleDetails.file}"/>
+					</p:commandButton>
+					<p:spacer width="5"/>
+					<p:commandButton value="Reset" actionListener="#{articlesBean.reSet()}" process="@this" immediate="true" update="@form"/>
+					<p:spacer width="5"/>
+					<p:commandButton value="Old-V" rendered="false" actionListener="#{articlesBean.getConditions()}" process="@this" immediate="true" update="@form"/>
+                </p:column>
+			</p:row>
+		</f:facet>
+	</p:panelGrid>
+	
+</h:form>
+</h:body>
+</html>

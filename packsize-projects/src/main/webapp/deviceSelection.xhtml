@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	
+</h:head>
+<h:body style="margin-left:100px;margin-right:100px;">
+	<div class="card">
+    <h:form>
+        <h:panelGrid columns="3" cellpadding="5">
+            <p:outputPanel id="photoCamPnl">
+                <p:photoCam widgetVar="pc" listener="#{photoCamView.oncapture}"/>
+                <select onchange="reload()" class="photoCamDevices">
+                    <option value="">Select device</option>
+                    <option value="user">"user" device</option>
+                    <option value="environment">"environment" device</option>
+                </select>
+            </p:outputPanel>
+            <p:commandButton type="button" value="Capture" onclick="PF('pc').capture()"/>
+            <p:outputPanel id="photo">
+                
+            </p:outputPanel>
+        </h:panelGrid>
+    </h:form>
+</div>
+
+<script>
+
+    //<![CDATA[
+
+    function reload() {
+        var cam = PF('pc');
+        var deviceSelector = document.querySelector("select.photoCamDevices");
+        var device = deviceSelector.value;
+        cam.device = device;
+        cam.reload();
+    }
+
+    function populateDeviceMenu() {
+        var photoCam = PF('pc');
+        var deviceSelector = document.querySelector("select");
+        var availableDevices = photoCam.getAvailableDevices();
+        if (availableDevices) {
+            availableDevices.then(devices => devices.forEach(device => {
+                    var option = document.createElement("option");
+                    option.text = device.label;
+                    option.value = device.deviceId;
+                    deviceSelector.appendChild(option);
+                })
+            );
+        } else {
+            console.log("no devices available");
+        }
+    }
+
+    populateDeviceMenu();
+
+    //]]>
+
+</script>
+</h:body>
+</html>

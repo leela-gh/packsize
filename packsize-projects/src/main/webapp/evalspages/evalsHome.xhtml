@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<script type ="text/javascript">
+		
+	</script>
+</h:head>
+<h:body style="margin-left:100px;margin-right:100px;">
+<h:form id="evalform" enctype="multipart/form-data">
+	<p:panel style="text-align:left;width:100%">
+		<f:facet name="header">Information</f:facet>
+		This application is used to parse conditions from eval designs.
+	</p:panel>
+	
+	<p:panelGrid columns="1" styleClass="ui-noborder" style="text-align:center;width:100%">
+		<p:spacer height="5"/>
+		<p:outputLabel value="Provide Designs folder Path:"/>
+		<p:inputText value="#{parseEvalConditionsBean.designPath}"/>
+		<p:column colspan="2">
+		<p:commandButton value="Submit" actionListener="#{parseEvalConditionsBean.getConditions()}" update="@form"/><p:commandButton value="Reset" actionListener="#{parseEvalConditionsBean.reset()}" update="@form"/>
+		</p:column>
+		<p:outputLabel value="Total .ezd files processed: #{parseEvalConditionsBean.noOfFilesProcessed}"/> 
+		<p:inputTextarea cols="150" rendered="#{parseEvalConditionsBean.details ne null}" readonly="true" value="#{parseEvalConditionsBean.details}"/>
+	</p:panelGrid>
+</h:form>
+</h:body>
+</html>

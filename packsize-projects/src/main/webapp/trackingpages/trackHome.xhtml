@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<script type ="text/javascript">
+		function selectOkCheckBoxes(disp){
+		 PF(disp).uncheck($(disp.checkbox),true);
+		}
+		
+		function selectDiscCheckBoxes(ok){
+		 PF(ok).uncheck($(ok.checkbox),true);
+		}
+	</script>
+</h:head>
+<h:body style="margin-left:100px;margin-right:100px;">
+<h:form id="trackform" enctype="multipart/form-data">
+	<p:panel style="text-align:left;width:100%">
+		<f:facet name="header">Information</f:facet>
+		This application is used to track PO details.
+	</p:panel>
+	<p:tabView id="tabs">
+		<p:tab id="receive" title="Receive">
+			<ui:include src="/trackingpages/tabs/receiveTab.xhtml"/>
+		</p:tab>
+		<p:tab title="Put Away" disabled="true">
+			
+		</p:tab>
+		<p:tab title="Pick" disabled="true">
+			
+		</p:tab>
+		<p:tab title="Ship" disabled="true">
+			
+		</p:tab>
+		
+	</p:tabView>
+</h:form>
+</h:body>
+</html>
