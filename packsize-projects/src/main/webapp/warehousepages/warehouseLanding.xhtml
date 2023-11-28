@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<script type ="text/javascript">
+		
+	</script>
+</h:head>
+<h:body style="margin-left:100px;margin-right:100px;">
+<h:form id="warehouseform" enctype="multipart/form-data">
+	<p:messages id="messages" showDetail="true" closable="true"/>
+	<p:panel style="text-align:left;width:100%">
+		<f:facet name="header">Information</f:facet>
+		This application is used to track machine tasks.
+	</p:panel>
+	
+	<p:panel style="text-align:center;width:100%">
+		<p:panelGrid columns="3" styleClass="ui-noborder" style="width:100%">
+			<p:outputLabel value="Asset ID :"/>
+			<p:inputNumber id="assetID" value="#{warehouseComponent.warehouseDetails.assetID}" required="true" requiredMessage="Enter Asset ID." placeholder="0"/>
+			<p:message for="assetID"/>
+			
+			<p:outputLabel value="Select Asset Type :"/>
+			<p:selectOneMenu id="assetType" value="#{warehouseComponent.warehouseDetails.machineType}" required="true" requiredMessage="Select Machine Type.">
+				<f:selectItem itemLabel="--Select--" noSelectionOption="true"/>
+				<f:selectItem itemLabel="iQ" itemValue="iQ"/>
+				<f:selectItem itemLabel="EM" itemValue="EM"/>
+				<f:selectItem itemLabel="X4" itemValue="X4"/>
+			</p:selectOneMenu>
+			<p:message for="assetType"/>
+			
+			<p:outputLabel value="Person Working :"/>
+			<p:inputText id="pName" value="#{warehouseComponent.warehouseDetails.name}" required="true" requiredMessage="Enter Name."/>
+			<p:message for="pName"/>
+		</p:panelGrid>
+		<f:facet name="footer">
+			<div style="text-align: center">
+					<p:commandButton value="Submit" actionListener="#{warehouseComponent.submit()}" update="@form"/>
+					<p:spacer width="5"/>
+					<p:commandButton value="Reset" actionListener="#{warehouseComponent.reSet()}" update="@form"/>
+					<p:spacer width="5"/>
+			</div>
+		</f:facet>
+	</p:panel>
+</h:form>
+</h:body>
+</html>

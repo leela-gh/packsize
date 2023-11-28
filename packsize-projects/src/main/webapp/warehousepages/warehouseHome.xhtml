@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<script type ="text/javascript">
+		
+	</script>
+</h:head>
+<h:body style="margin-left:100px;margin-right:100px;">
+<h:form id="warehouseform" enctype="multipart/form-data">
+	<p:panel style="text-align:left;width:100%">
+		<f:facet name="header">Information</f:facet>
+		This application is used to track machine tasks.
+	</p:panel>
+	
+	<p:panel style="text-align:left;width:100%">
+		<p:tabView>
+			<p:tab title="Preconfiguration">
+				<p:accordionPanel>
+					<p:tab title="Prep to Run">
+						<ui:include src="/warehousepages/include/tabincludes/prepToRun.xhtml"/>
+					</p:tab>
+					<p:tab title="Imaging the Panel">
+						<ui:include src="/warehousepages/include/tabincludes/imagingThePanel.xhtml"/>
+					</p:tab>
+					<p:tab title="Running Software Installer">
+					
+					</p:tab>
+					<p:tab title="ROBO Setup    (Skip if RTS)">
+					
+					</p:tab>
+					<p:tab title="PLC Ethernet Settings">
+					
+					</p:tab>
+					<p:tab title="Packnet Setup">
+					
+					</p:tab>
+					<p:tab title="Calibration">
+					
+					</p:tab>
+					<p:tab title="FAT Testing">
+					
+					</p:tab>
+				</p:accordionPanel>
+			</p:tab>
+		</p:tabView>
+	</p:panel>
+</h:form>
+</h:body>
+</html>

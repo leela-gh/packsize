@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<script type ="text/javascript">
+		
+	</script>
+</h:head>
+<h:body style="margin-left:100px;margin-right:100px;">
+	<p:panel style="text-align:left;width:100%" id="prepToRunPanel">
+		<p:dataTable var="item" value="#{warehouseBean.iQFusion.iQFusionTemplate.itemListPrepToRun}" id="prepToRunTable">
+            <p:column headerText="Items" colspan="8">
+                <h:outputText value="${item.name}" />
+            </p:column>
+            <p:column headerText="Hrs." colspan="1" style="text-align:center">
+                <h:outputText value="${item.hours}" />
+            </p:column>
+            <p:column headerText="" colspan="1" style="text-align:center">
+                <p:commandButton disabled="#{!item.enable or item.continueItem}" value="Start" actionListener="#{warehouseBean.checklistItemAction('start', item)}" update="prepToRunTable"/>
+            </p:column>
+            <p:column headerText="" colspan="1" style="text-align:center">
+                <p:commandButton disabled="#{!item.enable or !item.continueItem}" value="Pause" actionListener="#{warehouseBean.checklistItemAction('pause',item)}" update="prepToRunTable"/>
+            </p:column>
+            <p:column headerText="" colspan="1" style="text-align:center">
+                <p:commandButton disabled="#{!item.enable}" value="Complete" actionListener="#{warehouseBean.checklistItemAction('complete',item)}" update="@form"/>
+            </p:column>
+        </p:dataTable>
+        <br></br>
+        <p:panelGrid id="addItemPanel" styleClass="ui-noborder" style="text-align:left;width:100%">
+        	<p:column>
+        		<p:outputLabel value="Add CheckList Item :"/><p:spacer width="5"/>
+	        	<p:inputText value="#{warehouseBean.iQFusion.iQFusionTemplate.addItemPrepToRun}" disabled="#{warehouseBean.iQFusion.iQFusionTemplate.disableAddItemToPrepToRun}"/><p:spacer width="5"/>
+	        	<p:commandButton value="Add" disabled="#{warehouseBean.iQFusion.iQFusionTemplate.disableAddItemToPrepToRun}" actionListener="#{warehouseBean.addItem(1)}" update="prepToRunTable"/>
+        	</p:column>
+        	<p:column styleClass="totHrs">
+        		<p:outputLabel value="Total Hours: " /><p:spacer width="5"/>
+        		<p:outputLabel id="totalHours" value="#{warehouseBean.iQFusion.iQFusionTemplate.totalHrsPrepToRun}" />
+        	</p:column>
+        </p:panelGrid>
+    </p:panel>
+</h:body>
+</html>
