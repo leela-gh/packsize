@@ -64,7 +64,7 @@ public class ReadGoogleSheets {
 	   * Prints the names and majors of students in a sample spreadsheet:
 	   * https://docs.google.com/spreadsheets/d/1nGZPIsqYNKUdVQc8O-BzujVqDozfO_7CGrOIsR-o7sc/edit?usp=sharing
 	   */
-	  public static void readDataFromSheets(Integer assetID) throws IOException, GeneralSecurityException {
+	  public static void readDataFromSheets(long assetID) throws IOException, GeneralSecurityException {
 	    // Build a new authorized API client service.
 	    final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 	    final String spreadsheetId = "1nGZPIsqYNKUdVQc8O-BzujVqDozfO_7CGrOIsR-o7sc";

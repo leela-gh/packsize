@@ -6,10 +6,12 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.packsize.PackSizeLogger;
+import com.packsize.login.Login;
 import com.packsize.warehouse.google.GoogleSheetsUtil;
 import com.packsize.warehouse.templates.IQFusionChecklistItem;
 import com.packsize.warehouse.templates.IQFusionTemplate;
@@ -17,6 +19,12 @@ import com.packsize.warehouse.templates.IQFusionTemplate;
 @Component
 @Scope(value = "session")
 public class IQFusionWarehouseComponent {
+	
+	@Autowired
+	private WarehouseComponent warehouseComponent;
+	
+	@Autowired
+	private Login login;
 	
 	private IQFusionTemplate iQFusionTemplate;
 	private Date start;
@@ -92,10 +100,8 @@ public class IQFusionWarehouseComponent {
 			}
 		}
 		//TODO remove this test call
-		writeDataToGoogleSheets(item);
-		 
-		totalHoursByKey(item);
-		
+		//writeDataToGoogleSheets(item);
+		totalHoursByKey(item); 
 		List<IQFusionChecklistItem> returnedList = returnCheckListByKey(item);
 		if(item.getId() < returnedList.size()) {
 		    completeIQCheckListItem(returnedList, item.getId()); 
@@ -107,9 +113,13 @@ public class IQFusionWarehouseComponent {
 	}
 	
 	public void writeDataToGoogleSheets(IQFusionChecklistItem item) {
+		PackSizeLogger.info("In writeDataToGoogleSheets()");
 		
 		switch(item.getParentId()) {
-		case 1 : GoogleSheetsUtil.writeDataToSheets("test", 123, "TestPre", 20); break;
+		case 1 : GoogleSheetsUtil.writeDataToSheets(login.getUser(), 
+													warehouseComponent.getWarehouseDetails().getAssetID(), "Prep To Run", iQFusionTemplate.getTotalHrsPrepToRun()); break;
+		case 2 : GoogleSheetsUtil.writeDataToSheets(login.getUser(), 
+													warehouseComponent.getWarehouseDetails().getAssetID(), "Imaging The Panel", iQFusionTemplate.getTotalHrsImagingThePanel()); break;
 		default : break;
 		}
 	}
@@ -229,5 +239,21 @@ public class IQFusionWarehouseComponent {
 
 	public void setComplete(Date complete) {
 		this.complete = complete;
+	}
+	
+	public WarehouseComponent getWarehouseComponent() {
+		return warehouseComponent;
+	}
+
+	public void setWarehouseComponent(WarehouseComponent warehouseComponent) {
+		this.warehouseComponent = warehouseComponent;
+	}
+
+	public Login getLogin() {
+		return login;
+	}
+
+	public void setLogin(Login login) {
+		this.login = login;
 	}
 }

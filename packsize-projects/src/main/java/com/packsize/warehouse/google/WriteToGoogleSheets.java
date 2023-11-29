@@ -6,10 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-
-import org.springframework.boot.SpringApplication;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -25,7 +22,7 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.packsize.Main;
+import com.packsize.PackSizeLogger;
 
 public class WriteToGoogleSheets {
     private static final String APPLICATION_NAME = "Write to Google Spreadsheet";
@@ -46,7 +43,8 @@ public class WriteToGoogleSheets {
      * @throws IOException If the credentials.json file cannot be found.
      */
     private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-        // Load client secrets.
+    	PackSizeLogger.info("In getCredentials()");
+    	// Load client secrets.
         InputStream in = WriteToGoogleSheets.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
         if (in == null) {
             throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
@@ -63,8 +61,10 @@ public class WriteToGoogleSheets {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    public static void writeDataToSheets(String name, Integer assetID,String parentItemName, long totalHrsPrepToRun) throws IOException, GeneralSecurityException {
-        // Build a new authorized API client service.
+    public static void writeDataToSheets(String name, long assetID,String parentItemName, long totalHrsPrepToRun) throws IOException, GeneralSecurityException {
+    	PackSizeLogger.info("In writeDataToSheets()");
+    	
+    	// Build a new authorized API client service.
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String spreadsheetId = "1nGZPIsqYNKUdVQc8O-BzujVqDozfO_7CGrOIsR-o7sc";
         final String range = "1:20";
@@ -79,7 +79,7 @@ public class WriteToGoogleSheets {
         if(!values.isEmpty()) {
         	
         	String rowIndex = "A".concat(String.valueOf(values.size() + 1));
-        	ValueRange body = new ValueRange().setValues(Arrays.asList(Arrays.asList("Test", "123", "PrepToRun", 10)));
+        	ValueRange body = new ValueRange().setValues(Arrays.asList(Arrays.asList(name, assetID, parentItemName, totalHrsPrepToRun)));
           	UpdateValuesResponse result = service.spreadsheets().values()
     								      	     .update(spreadsheetId, rowIndex, body)
     								      	     .setValueInputOption("RAW")
@@ -88,6 +88,6 @@ public class WriteToGoogleSheets {
     }
     
     public static void main(String... args) throws IOException, GeneralSecurityException {
-    	writeDataToSheets(null, null, null, 0);
+    	//writeDataToSheets(null, null, null, 0);
     }
 }

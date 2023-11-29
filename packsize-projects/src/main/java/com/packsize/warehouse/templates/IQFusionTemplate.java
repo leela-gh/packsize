@@ -13,14 +13,12 @@ public class IQFusionTemplate {
 	
 	private Map<Integer, String> prepToRun;
 	private String addItemPrepToRun;
-	private String hrsWorkedPrepToRun;
 	private List<IQFusionChecklistItem> itemListPrepToRun;
 	private long totalHrsPrepToRun; 
 	private boolean disableAddItemToPrepToRun;
 	
 	private Map<Integer, String> imagingThePanel;
 	private String addItemImagingThePanel;
-	private String hrsWorkedImagingThePanel;
 	private List<IQFusionChecklistItem> itemListImagingThePanel;
 	private long totalHrsImagingThePanel; 
 	private boolean disableAddItemToImagingThePanel;
@@ -128,14 +126,6 @@ public class IQFusionTemplate {
 		this.iQCheckList = iQCheckList;
 	}
 
-	public String getHrsWorkedPrepToRun() {
-		return hrsWorkedPrepToRun;
-	}
-
-	public void setHrsWorkedPrepToRun(String hrsWorkedPrepToRun) {
-		this.hrsWorkedPrepToRun = hrsWorkedPrepToRun;
-	}
-
 	public Map<Integer, String> getImagingThePanel() {
 		return imagingThePanel;
 	}
@@ -150,14 +140,6 @@ public class IQFusionTemplate {
 
 	public void setAddItemImagingThePanel(String addItemImagingThePanel) {
 		this.addItemImagingThePanel = addItemImagingThePanel;
-	}
-
-	public String getHrsWorkedImagingThePanel() {
-		return hrsWorkedImagingThePanel;
-	}
-
-	public void setHrsWorkedImagingThePanel(String hrsWorkedImagingThePanel) {
-		this.hrsWorkedImagingThePanel = hrsWorkedImagingThePanel;
 	}
 
 	public List<IQFusionChecklistItem> getItemListImagingThePanel() {

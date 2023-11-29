@@ -46,10 +46,10 @@ public class WarehouseComponent {
 	private void validateUser() {
 		PackSizeLogger.info("In validateUser()");
 		
-		if(StringUtil.isNotBlank(warehouseDetails.getName()) && warehouseDetails.getName().equalsIgnoreCase("Test")) {
+		if(StringUtil.isNotBlank(warehouseDetails.getName())) {
 			try {
 				ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-				context.redirect(context.getRequestContextPath() + "warehouseHome.xhtml?asset=" + warehouseDetails.getAssetID() + "&type=" + warehouseDetails.getMachineType() + "&name=" + warehouseDetails.getName());
+				context.redirect(context.getRequestContextPath() + "/warehousepages/warehouseChecklist.xhtml");
 			} catch (IOException e) {
 				PackSizeLogger.error(e.getMessage());
 			}
