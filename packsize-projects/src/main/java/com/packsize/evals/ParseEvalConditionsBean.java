@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Component;
 @Scope(value = "session")
 public class ParseEvalConditionsBean {
 
+	private static final Logger logger = LogManager.getLogger();
 	private static Map<String, String> conditionsMapStringFormat = new HashMap<String, String>();
 	private static Map<String, Element> conditionsMapElements = new HashMap<String, Element>();
 	private static List<PipeLineRules> rules = new ArrayList<PipeLineRules>();
@@ -52,15 +55,15 @@ public class ParseEvalConditionsBean {
 	 * public static void main(String[] args) { getConditions(); //generateJSON(); }
 	 */
 	public void reset() {
-		System.out.println("In reset()");
+		logger.info("In reset()");
 		setDesignPath(null);
 		setDetails(null);
 		setNoOfFilesProcessed("0");
 	}
 	
 	public void getConditions() {
-		System.out.println("In getConditions()");
-		System.out.println(designPath);
+		logger.info("In getConditions()");
+		logger.info(designPath);
 		int counter = 0;
 		try {
 			SAXBuilder saxBuilder = new SAXBuilder();
@@ -98,7 +101,7 @@ public class ParseEvalConditionsBean {
 				}
 			}
 			setNoOfFilesProcessed(String.valueOf(counter));
-			System.out.println(details);
+			logger.info(details);
 		} 
 		catch (JDOMException e) {
 			e.printStackTrace();
@@ -111,7 +114,7 @@ public class ParseEvalConditionsBean {
 		for (Element condition : conditionList) {
 			 List<Element> conditionChildrens = condition.getChildren(); 
 			 for(Element child : conditionChildrens) { 
-				  System.out.println("\n**********child name :" + child.getName() + " In condition " + condition.getAttributeValue("id")); 
+				  logger.info("\n**********child name :" + child.getName() + " In condition " + condition.getAttributeValue("id")); 
 				  
 				  if(child.getName().equalsIgnoreCase("do")) {
 			      List<Attribute> childAttributes = child.getAttributes();
@@ -141,15 +144,15 @@ public class ParseEvalConditionsBean {
 				  } 
 			}
 		}
-		System.out.println("Generated Rules : ");
+		logger.info("Generated Rules : ");
 		for(PipeLineRules rule : rules) {
-			System.out.println(rule.toString());
+			logger.info(rule.toString());
 		}
 	}
 	
 	private static void iterateNestedCondition(Element condition) {
-		System.out.println("iterateCondition");
-		System.out.println("In data" + condition.getAttributes());
+		logger.info("iterateCondition");
+		logger.info("In data" + condition.getAttributes());
 		 for(Element childData : condition.getChildren()) { 
 			  if(childData.getName().equalsIgnoreCase("do")) {
 				  List<Attribute> childAttributes = childData.getAttributes();
@@ -159,8 +162,8 @@ public class ParseEvalConditionsBean {
 					  String target[] = {};
 					  if(childAttributes.get(1).getName().equalsIgnoreCase("action") && childAttributes.get(1).getValue().equalsIgnoreCase("condition")){ 
 						  target = parseMapData(childData.getValue()).split("/>"); 
-						  System.out.println("Parse condition" + parseCondition);
-						  System.out.println("Target" + target[0] + ", " + target[1]);
+						  logger.info("Parse condition" + parseCondition);
+						  logger.info("Target" + target[0] + ", " + target[1]);
 					  }
 				  }
 			  }
@@ -168,7 +171,7 @@ public class ParseEvalConditionsBean {
 	}
 	
 	private static String parseElseTarget(List<Element> conditionChildrens) {
-		System.out.println("parseElseTarget");
+		logger.info("parseElseTarget");
 		String result = null; 
 		for(Element child : conditionChildrens) {
 			 if(child.getName().equalsIgnoreCase("design")) {
@@ -233,7 +236,7 @@ public class ParseEvalConditionsBean {
 		
 		
 	    
-	    //System.out.println(ruleArray.toJSONString());
+	    //logger.info(ruleArray.toJSONString());
 	}
 
 	public String getNoOfFilesProcessed() {

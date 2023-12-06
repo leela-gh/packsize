@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 public class PackSizeLogger {
 	
-	private static final Logger logger = LogManager.getLogger(PackSizeLogger.class);
+	public static final Logger logger = LogManager.getLogger();
 	
 	public static void info(String msg) {
 		logger.info(msg);

@@ -8,6 +8,9 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -22,9 +25,14 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.packsize.PackSizeLogger;
+import com.packsize.login.Login;
+import com.packsize.warehouse.WarehouseDetails;
+import com.packsize.warehouse.templates.IQFusionChecklistItem;
+import com.packsize.warehouse.templates.IQFusionTemplate;
 
 public class WriteToGoogleSheets {
+	
+	private static final Logger logger = LogManager.getLogger();
     private static final String APPLICATION_NAME = "Write to Google Spreadsheet";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "C:\\Users\\leela.yallabandi\\OneDrive - Packsize International\\Desktop\\DataWareHouse_Prj\\TOKENS_DIRECTORY_PATH_WRITE";
@@ -43,7 +51,7 @@ public class WriteToGoogleSheets {
      * @throws IOException If the credentials.json file cannot be found.
      */
     private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-    	PackSizeLogger.info("In getCredentials()");
+    	logger.info("In getCredentials()");
     	// Load client secrets.
         InputStream in = WriteToGoogleSheets.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
         if (in == null) {
@@ -61,13 +69,13 @@ public class WriteToGoogleSheets {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    public static void writeDataToSheets(String name, long assetID,String parentItemName, long totalHrsPrepToRun) throws IOException, GeneralSecurityException {
-    	PackSizeLogger.info("In writeDataToSheets()");
+    public static void writeDataToSheets(Login login, WarehouseDetails warehouseDetails,IQFusionChecklistItem item, IQFusionTemplate iQFusionTemplate) throws IOException, GeneralSecurityException {
+    	logger.info("In writeDataToSheets()");
     	
     	// Build a new authorized API client service.
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String spreadsheetId = "1nGZPIsqYNKUdVQc8O-BzujVqDozfO_7CGrOIsR-o7sc";
-        final String range = "1:20";
+        final String range = "Sheet1";
         Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                 				   .setApplicationName(APPLICATION_NAME)
                 				   .build();
@@ -79,13 +87,70 @@ public class WriteToGoogleSheets {
         if(!values.isEmpty()) {
         	
         	String rowIndex = "A".concat(String.valueOf(values.size() + 1));
-        	ValueRange body = new ValueRange().setValues(Arrays.asList(Arrays.asList(name, assetID, parentItemName, totalHrsPrepToRun)));
+        	ValueRange body = new ValueRange().setValues(Arrays.asList(
+        			Arrays.asList(login.getUser(), warehouseDetails.getAssetID(), warehouseDetails.getMachineType(), 
+        					warehouseDetails.getStatus(), item.getParentId(), item.getId(), item.getName(), 
+        					item.getHours(), item.isEnable(), item.isContinueItem(), 
+        					returnTotalHrsForSubCheckList(item, iQFusionTemplate), 
+        					disableAddItemForSubCheckList(item, iQFusionTemplate))));
+        	
           	UpdateValuesResponse result = service.spreadsheets().values()
     								      	     .update(spreadsheetId, rowIndex, body)
     								      	     .setValueInputOption("RAW")
     								      	     .execute();
         }
     }
+    
+    public static void writeWarehouseDetailsToSheets(Login login, WarehouseDetails warehouseDetails) throws IOException, GeneralSecurityException {
+    	logger.info("In writeDataToSheets()");
+    	
+    	// Build a new authorized API client service.
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        final String spreadsheetId = "1bbs9YjxG_y9QgErZGawJilHEQ3sHp2dMXdTGRbvOYrE";
+        final String range = "Sheet1";
+        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                				   .setApplicationName(APPLICATION_NAME)
+                				   .build();
+        ValueRange response = service.spreadsheets().values()
+					                 .get(spreadsheetId, range)
+					                 .execute();
+        List<List<Object>> values = response.getValues();
+        
+        if(!values.isEmpty()) {
+        	String rowIndex = "A".concat(String.valueOf(values.size() + 1));
+        	ValueRange body = new ValueRange().setValues(Arrays.asList(
+        			Arrays.asList(login.getUser(), warehouseDetails.getAssetID(), warehouseDetails.getMachineType(), 
+        					"In Progress")));
+        	
+          	UpdateValuesResponse result = service.spreadsheets().values()
+    								      	     .update(spreadsheetId, rowIndex, body)
+    								      	     .setValueInputOption("RAW")
+    								      	     .execute();
+        }
+    }
+    
+    private static long returnTotalHrsForSubCheckList(IQFusionChecklistItem item, IQFusionTemplate iQFusionTemplate) {
+		long totalHrs = 0;
+		
+		switch(item.getParentId()) {
+			case 1 : totalHrs = iQFusionTemplate.getTotalHrsPrepToRun(); break;
+			case 2 : totalHrs = iQFusionTemplate.getTotalHrsImagingThePanel(); break;
+			default : break;
+		}
+		
+		return totalHrs;
+	}
+    
+    private static boolean disableAddItemForSubCheckList(IQFusionChecklistItem item, IQFusionTemplate iQFusionTemplate) {
+		boolean disable = false;
+		
+		switch(item.getParentId()) {
+			case 1 : disable = iQFusionTemplate.isDisableAddItemToPrepToRun(); break;
+			case 2 : disable = iQFusionTemplate.isDisableAddItemToImagingThePanel(); break;
+			default : break;
+		}
+		return disable;
+	}
     
     public static void main(String... args) throws IOException, GeneralSecurityException {
     	//writeDataToSheets(null, null, null, 0);

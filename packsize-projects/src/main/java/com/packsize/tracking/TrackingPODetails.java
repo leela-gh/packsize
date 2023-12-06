@@ -8,6 +8,10 @@ import org.primefaces.model.file.UploadedFiles;
 
 public class TrackingPODetails implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String id;
 	private String email;
 	private boolean searchPanel;

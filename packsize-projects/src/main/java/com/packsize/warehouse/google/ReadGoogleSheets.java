@@ -1,5 +1,19 @@
 package com.packsize.warehouse.google;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -13,20 +27,19 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.List;
+import com.packsize.warehouse.WarehouseDetails;
+import com.packsize.warehouse.templates.IQFusionChecklistItem;
+import com.packsize.warehouse.templates.IQFusionTemplate;
 
 public class ReadGoogleSheets {
 	
+	  private static final Logger logger = LogManager.getLogger();
 	  private static final String APPLICATION_NAME = "Google Sheets API Java Quickstart";
 	  private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 	  private static final String TOKENS_DIRECTORY_PATH = "C:\\Users\\leela.yallabandi\\OneDrive - Packsize International\\Desktop\\DataWareHouse_Prj\\TOKENS_DIRECTORY_PATH";
-
+	  private static List<List<Object>> filteredValues = new ArrayList<List<Object>>();
+	  private static List<List<Object>> filteredValuesWarehouseDetails = new ArrayList<List<Object>>();
+	  private static Map<Integer, Integer> subCheckListSizeByParentID = new HashMap<Integer, Integer>();
 	  /**
 	   * Global instance of the scopes required by this quickstart.
 	   * If modifying these scopes, delete your previously saved tokens/ folder.
@@ -43,6 +56,7 @@ public class ReadGoogleSheets {
 	   */
 	  private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT)
 	      throws IOException {
+		  logger.info("getCredentials()");
 	    // Load client secrets.
 	    InputStream in = ReadGoogleSheets.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
 	    if (in == null) {
@@ -64,11 +78,13 @@ public class ReadGoogleSheets {
 	   * Prints the names and majors of students in a sample spreadsheet:
 	   * https://docs.google.com/spreadsheets/d/1nGZPIsqYNKUdVQc8O-BzujVqDozfO_7CGrOIsR-o7sc/edit?usp=sharing
 	   */
-	  public static void readDataFromSheets(long assetID) throws IOException, GeneralSecurityException {
-	    // Build a new authorized API client service.
+	  public static IQFusionTemplate readDataFromSheets(String user, String assetID) throws IOException, GeneralSecurityException {
+		  logger.info("readDataFromSheets()");
+		  
+		  // Build a new authorized API client service.
 	    final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 	    final String spreadsheetId = "1nGZPIsqYNKUdVQc8O-BzujVqDozfO_7CGrOIsR-o7sc";
-	    final String range = "Sheet1!A:E";
+	    final String range = "Sheet1";
 	    Sheets service =
 	        new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
 	            .setApplicationName(APPLICATION_NAME)
@@ -77,14 +93,163 @@ public class ReadGoogleSheets {
 	        .get(spreadsheetId, range)
 	        .execute();
 	    List<List<Object>> values = response.getValues();
+	    filteredValues.clear();
+	    
 	    if (values == null || values.isEmpty()) {
-	      System.out.println("No data found.");
+	    	logger.info("No data found.");
 	    } else {
-	      System.out.println("Name, Major");
-	      for (List row : values) {
-	        // Print columns A and E, which correspond to indices 0 and 4.
-	        System.out.printf("%s, %s\n", row.get(0), row.get(4));
-	      }
+		      for (List row : values) {
+		        if(row.get(0).toString().equalsIgnoreCase(user) && row.get(1).toString().equalsIgnoreCase(assetID)) {
+		        	filteredValues.add(row);
+		        }
+		     }
 	    }
+	    return retrieveValues(filteredValues, user, assetID);
+	  }
+	  
+	  private static IQFusionTemplate retrieveValues(List<List<Object>> filteredValues, String user, String assetID) {
+		  logger.info("retrieveValues() for " + filteredValues);
+		  
+		  IQFusionTemplate iQFusionTemplate = new IQFusionTemplate();
+		  List<IQFusionChecklistItem> returnedList;
+		  int index = 0;
+		  if(!filteredValues.isEmpty()) {
+			  for (List row : filteredValues) {
+				  IQFusionChecklistItem item = new IQFusionChecklistItem();
+				  
+				  item.setParentId(Integer.parseInt(row.get(4).toString()));
+				  item.setId(Integer.parseInt(row.get(5).toString()));
+				  item.setName((String)row.get(6));
+				  item.setHours(Integer.parseInt(row.get(7).toString()));
+				  item.setEnable(Boolean.parseBoolean(row.get(8).toString()));
+				  item.setContinueItem(Boolean.parseBoolean(row.get(9).toString()));
+				  
+				  returnedList = retrieveValuesByParentID(iQFusionTemplate,row);
+				  if(item.getId() <= returnedList.size()) {
+					 returnedList.set((item.getId()-1), item);
+				  }else {
+					  returnedList.add(item);
+				  }
+				}
+			  savedSubCheckListSizeByParentID(iQFusionTemplate,filteredValues,user,assetID);
+			  
+		  }
+		  return iQFusionTemplate;
+		}
+	  
+	  private static void savedSubCheckListSizeByParentID(IQFusionTemplate iQFusionTemplate, List<List<Object>> filteredValues, String user, String assetID) {
+		  logger.info("savedSubCheckListSizeByParentID()");
+		  
+		  subCheckListSizeByParentID.clear();
+		  subCheckListSizeByParentID.put(1, null);
+		  subCheckListSizeByParentID.put(2, null);
+		  subCheckListSizeByParentID.put(3, null);
+		  subCheckListSizeByParentID.put(4, null);
+		  subCheckListSizeByParentID.put(5, null);
+		  subCheckListSizeByParentID.put(6, null);
+		  subCheckListSizeByParentID.put(7, null);
+		  subCheckListSizeByParentID.put(8, null);
+		  
+		  for (Integer key : subCheckListSizeByParentID.keySet()) {
+		        int size = 0;
+		        for (List row : filteredValues) {
+			        if(row.get(0).toString().equalsIgnoreCase(user) && row.get(1).toString().equalsIgnoreCase(assetID) && row.get(4).toString().equalsIgnoreCase(key.toString())) {
+			        	size++;
+			        }
+			        subCheckListSizeByParentID.put(key, size);
+			     }
+		    }
+		  enableStartAndCompleteButtons(iQFusionTemplate,subCheckListSizeByParentID);
+	  }
+	  
+	  private static void enableStartAndCompleteButtons(IQFusionTemplate iQFusionTemplate, Map<Integer, Integer> subCheckListSizeByParentID) {
+		  logger.info("enableStartAndCompleteButtons() and size detials : "+ subCheckListSizeByParentID);
+		 
+		  if(!iQFusionTemplate.isDisableAddItemToPrepToRun() && subCheckListSizeByParentID.get(1) != 0) {
+			  iQFusionTemplate.getItemListPrepToRun().get((subCheckListSizeByParentID.get(1)- 1) + 1).setEnable(true);
+		  }
+		  if(!iQFusionTemplate.isDisableAddItemToImagingThePanel() && subCheckListSizeByParentID.get(2) != 0) {
+			  iQFusionTemplate.getItemListImagingThePanel().get((subCheckListSizeByParentID.get(2)- 1) + 1).setEnable(true);
+		  }
+	  }
+	  
+	  private static List<IQFusionChecklistItem> retrieveValuesByParentID(IQFusionTemplate iQFusionTemplate, List row) {
+		  
+		  List<IQFusionChecklistItem> list = null;
+		  switch(row.get(4).toString()) {
+				  case "1" : list = iQFusionTemplate.getItemListPrepToRun();
+				  					iQFusionTemplate.setTotalHrsPrepToRun(Long.parseLong(row.get(10).toString()));
+				  					iQFusionTemplate.setDisableAddItemToPrepToRun(Boolean.parseBoolean(row.get(11).toString()));break;
+				  case "2" : list = iQFusionTemplate.getItemListImagingThePanel();
+				  					iQFusionTemplate.setTotalHrsImagingThePanel(Long.parseLong(row.get(10).toString()));
+				  					iQFusionTemplate.setDisableAddItemToImagingThePanel(Boolean.parseBoolean(row.get(11).toString()));break;
+				  default : break;
+		  }
+		  return list;
+		  
+	  }
+	  
+	  public static List<WarehouseDetails> readWarehouseDetailsFromSheets(String user) throws IOException, GeneralSecurityException {
+		  logger.info("readWarehouseDetailsFromSheets()");
+		  
+		  // Build a new authorized API client service.
+	    final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+	    final String spreadsheetId = "1bbs9YjxG_y9QgErZGawJilHEQ3sHp2dMXdTGRbvOYrE";
+	    final String range = "Sheet1";
+	    Sheets service =
+	        new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+	            .setApplicationName(APPLICATION_NAME)
+	            .build();
+	    ValueRange response = service.spreadsheets().values()
+	        .get(spreadsheetId, range)
+	        .execute();
+	    List<List<Object>> values = response.getValues();
+	    System.out.println(values);
+	    filteredValuesWarehouseDetails.clear();
+	    
+	    if (values == null || values.isEmpty()) {
+	    	logger.info("No data found.");
+	    } else {
+		      for (List row : values) {
+		        if(row.get(0).toString().equalsIgnoreCase(user)) {
+		        	filteredValuesWarehouseDetails.add(row);
+		        }
+		     }
+	    }
+	    return retrieveValuesWarehouseDetails(filteredValuesWarehouseDetails);
+	  }
+	  
+	  private static List<WarehouseDetails> retrieveValuesWarehouseDetails(List<List<Object>> values) {
+		  logger.info("retrieveValuesWarehouseDetails()");
+		  
+		  List<WarehouseDetails> WarehouseDetailsList = new ArrayList<WarehouseDetails>();
+		  		  
+		  for (List row : values) {
+			  WarehouseDetails warehouseDetails = new WarehouseDetails();
+			  
+			  warehouseDetails.setName((String)row.get(0));
+			  warehouseDetails.setAssetID(Long.parseLong(row.get(1).toString()));
+			  warehouseDetails.setMachineType((String)row.get(2));
+			  warehouseDetails.setStatus((String)row.get(3));
+			  			  
+			  WarehouseDetailsList.add(warehouseDetails);
+		   }
+		  return WarehouseDetailsList;
+		}
+	  
+	  private static void clearDefaultCheckListItems(IQFusionTemplate iQFusionTemplate) {
+		  logger.info("clearDefaultCheckListItems()");
+		  
+		  iQFusionTemplate.getItemListPrepToRun().clear();
+		  iQFusionTemplate.getItemListImagingThePanel().clear();
+		  
+	  }
+	  
+	  public static void main(String... args) throws IOException, GeneralSecurityException {
+	    	//writeDataToSheets(null, null, null, 0);
+		  //readDataFromSheets("Test1", "12345");
+		  for(WarehouseDetails row : readWarehouseDetailsFromSheets("Test")) {
+			  System.out.println("loop "+row.getAssetID());
+		  }
 	  }
 }

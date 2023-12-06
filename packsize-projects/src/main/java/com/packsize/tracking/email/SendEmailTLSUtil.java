@@ -16,16 +16,18 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.primefaces.model.file.UploadedFile;
 
-import com.packsize.PackSizeLogger;
 import com.packsize.tracking.LineItem;
 import com.packsize.tracking.TrackingPODetails;
 
 public class SendEmailTLSUtil {
 	
+	private static final Logger logger = LogManager.getLogger();
 	public static boolean sendEmail(TrackingPODetails poDetails, List<LineItem> dispList) {
-		PackSizeLogger.info("In sendEmail()");
+		logger.info("In sendEmail()");
 		 
 		boolean success = true;
 		 
@@ -76,11 +78,11 @@ public class SendEmailTLSUtil {
 
             Transport.send(message);
 
-            PackSizeLogger.info("Done");
+            logger.info("Done");
 
         } catch (MessagingException e) {
         	success = false;
-        	PackSizeLogger.error(e.getMessage());
+        	logger.error(e.getMessage());
         }
         return success;
     }
@@ -100,14 +102,14 @@ public class SendEmailTLSUtil {
 	}
 	
 	private static void generateAttachmentsForSearchPanel(TrackingPODetails poDetails, Multipart multipart) {
-		PackSizeLogger.info("In generateAttachmentsForSearchPanel()");
+		logger.info("In generateAttachmentsForSearchPanel()");
 		if(poDetails.getFiles() != null) {
         		addMultiPartToEmail(poDetails.getFiles().getFiles(), multipart);
         }
 	}
 	
 	private static void generateAttachmentsForPoPanel(List<LineItem> dispList, Multipart multipart) {
-		PackSizeLogger.info("In generateAttachmentsForPoPanel()");
+		logger.info("In generateAttachmentsForPoPanel()");
 		for(LineItem item: dispList) {
         	if(item.getFiles() != null) {
         		addMultiPartToEmail(item.getFiles().getFiles(),multipart);
@@ -116,10 +118,10 @@ public class SendEmailTLSUtil {
 	}
 		
 	private static void addMultiPartToEmail(List<UploadedFile> files, Multipart multipart) {
-		PackSizeLogger.info("In addMultiPartToEmail()");
+		logger.info("In addMultiPartToEmail()");
 		try {
 			for (UploadedFile file : files) {
-				PackSizeLogger.info("File Name :" + file.getFileName());
+				logger.info("File Name :" + file.getFileName());
 	            if(file.getFileName() != null) {
 	            	byte[] fileByteArray = file.getContent();
 	                byte[] fileBase64ByteArray = java.util.Base64.getEncoder().encode(fileByteArray);
@@ -139,7 +141,7 @@ public class SendEmailTLSUtil {
 	            }
 			 }
 		}catch(MessagingException e) {
-			PackSizeLogger.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 	}
 	

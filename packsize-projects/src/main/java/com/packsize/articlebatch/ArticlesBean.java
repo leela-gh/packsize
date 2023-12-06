@@ -1,32 +1,33 @@
 package com.packsize.articlebatch;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.packsize.PackSizeLogger;
 
 @Component
 @Scope(value = "session")
 public class ArticlesBean {
 	
+	private static final Logger logger = LogManager.getLogger();
 	@Autowired
 	private ArticleComponent articleComponent;
 	
 	public void updateDesignValues() {
-		PackSizeLogger.info("In updateDesignValues()");
+		logger.info("In updateDesignValues()");
 		
 		articleComponent.updateDesignValues();
 	}
 	
 	public void reSet() {
-		PackSizeLogger.info("In reSet()");
+		logger.info("In reSet()");
 		
 		articleComponent.reSet();
 	}
 	
 	public void validations() {
-		PackSizeLogger.info("In validations()");
+		logger.info("In validations()");
 		
 		articleComponent.validations();
 	}

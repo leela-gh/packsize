@@ -11,5 +11,4 @@
 	<!-- <application>
    		<el-resolver>org.springframework.web.jsf.el.WebApplicationContextFacesELResolver</el-resolver>
  	</application> -->
-
 </faces-config>

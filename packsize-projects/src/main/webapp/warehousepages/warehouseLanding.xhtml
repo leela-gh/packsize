@@ -21,7 +21,7 @@
 		This application is used to track machine tasks.
 	</p:panel>
 	
-	<p:panel style="text-align:center;width:100%">
+	<p:panel style="text-align:center;width:100%" rendered="#{empty warehouseComponent.warehouseDetailsList}">
 		<p:panelGrid columns="3" styleClass="ui-noborder" style="width:100%">
 			<p:outputLabel value="Asset ID :"/>
 			<p:inputNumber id="assetID" value="#{warehouseComponent.warehouseDetails.assetID}" required="true" requiredMessage="Enter Asset ID." placeholder="0"/>
@@ -35,10 +35,6 @@
 				<f:selectItem itemLabel="X4" itemValue="X4"/>
 			</p:selectOneMenu>
 			<p:message for="assetType"/>
-			
-			<p:outputLabel value="Person Working :"/>
-			<p:inputText id="pName" value="#{warehouseComponent.warehouseDetails.name}" required="true" requiredMessage="Enter Name."/>
-			<p:message for="pName"/>
 		</p:panelGrid>
 		<f:facet name="footer">
 			<div style="text-align: center">
@@ -49,6 +45,25 @@
 			</div>
 		</f:facet>
 	</p:panel>
+	
+	<p:panel style="text-align:center;width:100%" rendered="#{not empty warehouseComponent.warehouseDetailsList}">
+		<p:dataTable var="asset" value="#{warehouseComponent.warehouseDetailsList}" id="assetsTable">
+            <p:column headerText="Asset" colspan="8">
+                <p:commandLink value="${asset.assetID}" actionListener="#{warehouseComponent.navigateToCheckListPage()}"/>
+            </p:column>
+            <p:column headerText="Machine Type" colspan="1" style="text-align:center">
+                <p:outputLabel value="${asset.machineType}" />
+            </p:column>
+            <p:column headerText="Status" colspan="1" style="text-align:center">
+                <p:outputLabel value="${asset.status}" />
+            </p:column>
+            <p:column colspan="1" style="text-align:center">
+                <p:commandButton value="Complete" disabled="true"/>
+            </p:column>
+            
+        </p:dataTable>
+	</p:panel>
+	
 </h:form>
 </h:body>
 </html>

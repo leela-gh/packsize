@@ -11,40 +11,47 @@ import javax.faces.application.FacesMessage;
 
 import javax.faces.context.FacesContext;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.packsize.PackSizeLogger;
-
 @Component
 @Scope(value = "session")
 public class TrackingPOBean implements Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private static final Logger logger = LogManager.getLogger();
 	
 	@Autowired
 	private TrackingPOComponent trackingPOComponent;
 	
 	public void seachPO() {
-		PackSizeLogger.info("In seachPO()");
+		logger.info("In seachPO()");
 		
 		if(StringUtil.isNotBlank(trackingPOComponent.getPoDetails().getId())) {
 			trackingPOComponent.retriveData();
 		}else {
 			FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Enter PO id.")); 
-			PackSizeLogger.error("PO is empty.");
+			logger.error("PO is empty.");
 		}
 	}
 	
 	public void reSet() {
-		PackSizeLogger.info("In reSet()");
+		logger.info("In reSet()");
 		trackingPOComponent.reSet();
 	}
 	
 	private void sendEmail(List<LineItem> dispList) {
-		PackSizeLogger.info("In sendEmail()");
+		logger.info("In sendEmail()");
 		
-		PackSizeLogger.info("Sending Email to :" + trackingPOComponent.getPoDetails().getEmail());
+		logger.info("Sending Email to :" + trackingPOComponent.getPoDetails().getEmail());
 		if(StringUtil.isNotBlank(trackingPOComponent.getPoDetails().getEmail())) {
 			if(trackingPOComponent.sendEmail(dispList)) {
 				FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_INFO, null, "Email Sent.")); 
@@ -53,12 +60,12 @@ public class TrackingPOBean implements Serializable{
 			}
 		}else {
 			FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Select email.")); 
-			PackSizeLogger.error("Select email.");
+			logger.error("Select email.");
 		}
 	}
 	
 	public void submit() {
-		PackSizeLogger.info("In submit()");
+		logger.info("In submit()");
 		
 		if(trackingPOComponent.getPoDetails().isSearchPanel()) {
 			sendEmail(null);
@@ -78,7 +85,7 @@ public class TrackingPOBean implements Serializable{
 	}
 	
 	private void exportToText(List<LineItem> okList) {
-		PackSizeLogger.info("In exportToText()");
+		logger.info("In exportToText()");
 		
 		StringBuffer data = new StringBuffer(); 
 		data.append("Line, Item, Plant, Stor.Loca, Material, Mat.Short Text, PO Quantity, Received, Qty in UnE, Label, OK, Discp., Reason, Reason Comments\n");
@@ -88,11 +95,11 @@ public class TrackingPOBean implements Serializable{
             	data.append(item.getLine()+", "+item.getItem()+", "+item.getPlant()+", "+item.getStoreLocation()+", "+item.getMaterial()+", "+item.getMatShortText()+", "+item.getPoQuantity()+", "+item.getReceived()+", "+item.getQtyInUne()+", "+item.getLabel()+", "+item.isOk()+", "+item.isDisc()+", "+item.getReasonSelection()+", "+item.getReasonComment()+"\n");
             }
             f_writer.write(data.toString());
-            PackSizeLogger.info("File is created successfully with the content.");
+            logger.info("File is created successfully with the content.");
             f_writer.close();
         }
         catch (IOException e) {
-        	PackSizeLogger.error(e.getMessage());
+        	logger.error(e.getMessage());
         }
 	}
 

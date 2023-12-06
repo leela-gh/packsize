@@ -5,7 +5,7 @@ public class WarehouseDetails {
 	private long assetID;
 	private String machineType;
 	private String name;
-	private String status;
+	private String status = "In Progress";
 	
 	public long getAssetID() {
 		return assetID;

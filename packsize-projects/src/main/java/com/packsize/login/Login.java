@@ -8,6 +8,8 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +20,7 @@ import com.packsize.PackSizeLogger;
 public class Login implements Serializable {
 
 	private static final long serialVersionUID = 1094801825228386363L;
+	private static final Logger logger = LogManager.getLogger();
 	
 	private String pwd;
 	private String msg;
@@ -49,6 +52,8 @@ public class Login implements Serializable {
 
 	//validate login
 	public void validateUsernamePassword() {
+		logger.info("In validateUsernamePassword");
+		
 		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 		boolean valid = true;
 		if (valid) {
@@ -71,6 +76,8 @@ public class Login implements Serializable {
 
 	//logout event, invalidate session
 	public void logout() {
+		logger.info("In logout");
+		
 		HttpSession session = SessionUtils.getSession();
 		session.invalidate();
 		try {

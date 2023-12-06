@@ -1,16 +1,18 @@
 package com.packsize.warehouse;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.packsize.PackSizeLogger;
 import com.packsize.login.Login;
 import com.packsize.warehouse.google.GoogleSheetsUtil;
 import com.packsize.warehouse.templates.IQFusionChecklistItem;
@@ -18,8 +20,14 @@ import com.packsize.warehouse.templates.IQFusionTemplate;
 
 @Component
 @Scope(value = "session")
-public class IQFusionWarehouseComponent {
+public class IQFusionWarehouseComponent implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LogManager.getLogger();
+
 	@Autowired
 	private WarehouseComponent warehouseComponent;
 	
@@ -37,13 +45,17 @@ public class IQFusionWarehouseComponent {
 	}
 	
 	private void initialSetup() {
-		PackSizeLogger.info("In initialSetup()");
+		logger.info("In initialSetup()");
 		
-		setiQFusionTemplate(new IQFusionTemplate());
+		if(warehouseComponent.getWarehouseDetailsList().isEmpty()) {
+			setiQFusionTemplate(new IQFusionTemplate());
+		}else {
+			setiQFusionTemplate(GoogleSheetsUtil.readDataFromSheets(warehouseComponent.getWarehouseDetails().getName(), String.valueOf(warehouseComponent.getWarehouseDetails().getAssetID())));
+		}
 	}
 	
 	public void checklistItemAction(String status, IQFusionChecklistItem item) {
-		PackSizeLogger.info("In checklistItemAction()");
+		logger.info("In checklistItemAction()");
 		
 		switch(status) {
 		case "start": itemStartTimer(item); break;
@@ -54,14 +66,14 @@ public class IQFusionWarehouseComponent {
 	}
 	
 	public void itemStartTimer(IQFusionChecklistItem item) {
-		PackSizeLogger.info("In itemStartTimer()");
+		logger.info("In itemStartTimer()");
 		
 		setStart(new Date());
 		item.setContinueItem(true);
 	}
 	
 	public void itemPauseTimer(IQFusionChecklistItem item) {
-		PackSizeLogger.info("In itemPauseTimer()");
+		logger.info("In itemPauseTimer()");
 		
 		setPause(new Date());
 		item.setContinueItem(false);
@@ -81,7 +93,7 @@ public class IQFusionWarehouseComponent {
 	}
 	
 	public void itemCompleteTimer(IQFusionChecklistItem item) {
-		PackSizeLogger.info("In itemCompleteTimer()");
+		logger.info("In itemCompleteTimer()");
 		
 		setComplete(new Date());
 		
@@ -108,24 +120,18 @@ public class IQFusionWarehouseComponent {
 		}else { 
 		    item.setEnable(false);
 			disableAddItemByKey(item);
-			writeDataToGoogleSheets(item);
 		}
+		writeDataToGoogleSheets(item);
 	}
 	
 	public void writeDataToGoogleSheets(IQFusionChecklistItem item) {
-		PackSizeLogger.info("In writeDataToGoogleSheets()");
+		logger.info("In writeDataToGoogleSheets()");
 		
-		switch(item.getParentId()) {
-		case 1 : GoogleSheetsUtil.writeDataToSheets(login.getUser(), 
-													warehouseComponent.getWarehouseDetails().getAssetID(), "Prep To Run", iQFusionTemplate.getTotalHrsPrepToRun()); break;
-		case 2 : GoogleSheetsUtil.writeDataToSheets(login.getUser(), 
-													warehouseComponent.getWarehouseDetails().getAssetID(), "Imaging The Panel", iQFusionTemplate.getTotalHrsImagingThePanel()); break;
-		default : break;
-		}
+		GoogleSheetsUtil.writeDataToSheets(login, warehouseComponent.getWarehouseDetails(), item, iQFusionTemplate);
 	}
 	
 	public void completeIQCheckListItem(List<IQFusionChecklistItem> returnedList, Integer id) {
-		PackSizeLogger.info("In completeIQCheckListItem()");
+		logger.info("In completeIQCheckListItem()");
 		
 		for(IQFusionChecklistItem item : returnedList) {
 			if(item.getId() == (id+1)) {
@@ -137,7 +143,7 @@ public class IQFusionWarehouseComponent {
 	}
 	
 	private List<IQFusionChecklistItem> returnCheckListByKey(IQFusionChecklistItem item) {
-		PackSizeLogger.info("In returnCheckListByKey() with obj");
+		logger.info("In returnCheckListByKey() with obj");
 		
 		switch(item.getParentId()) {
 		case 1 : return iQFusionTemplate.getItemListPrepToRun(); 
@@ -147,7 +153,7 @@ public class IQFusionWarehouseComponent {
 	}
 	
 	private List<IQFusionChecklistItem> returnCheckListByKey(Integer parentID) {
-		PackSizeLogger.info("In returnCheckListByKey() with " + parentID);
+		logger.info("In returnCheckListByKey() with " + parentID);
 		
 		switch(parentID) {
 		case 1 : return iQFusionTemplate.getItemListPrepToRun(); 
@@ -157,7 +163,7 @@ public class IQFusionWarehouseComponent {
 	}
 	
 	private void disableAddItemByKey(IQFusionChecklistItem item) {
-		PackSizeLogger.info("In disableAddItemByKey()");
+		logger.info("In disableAddItemByKey()");
 		
 		switch(item.getParentId()) {
 		case 1 : iQFusionTemplate.setDisableAddItemToPrepToRun(true); break; 
@@ -167,7 +173,7 @@ public class IQFusionWarehouseComponent {
 	}
 	
 	private void totalHoursByKey(IQFusionChecklistItem item) {
-		PackSizeLogger.info("In totalHoursByKey()");
+		logger.info("In totalHoursByKey()");
 		
 		switch(item.getParentId()) {
 		case 1 : iQFusionTemplate.setTotalHrsPrepToRun(iQFusionTemplate.getTotalHrsPrepToRun() + item.getHours()); break; 
@@ -177,7 +183,7 @@ public class IQFusionWarehouseComponent {
 	}
 	
 	public void addItemObj(Integer parentID) {
-		PackSizeLogger.info("In addItemObj()");
+		logger.info("In addItemObj()");
 		
 		IQFusionChecklistItem newItem = new IQFusionChecklistItem();
 		List<IQFusionChecklistItem> returnedList = returnCheckListByKey(parentID);
@@ -192,7 +198,7 @@ public class IQFusionWarehouseComponent {
 	}
 	
 	private void newItemChecklist(Integer parentID, IQFusionChecklistItem newItem, Integer index, String newItemName) {
-		PackSizeLogger.info("In newItemChecklist()");
+		logger.info("In newItemChecklist()");
 		
 		newItem.setParentId(parentID);
 		newItem.setId(index);
@@ -201,7 +207,7 @@ public class IQFusionWarehouseComponent {
 	}
 	
 	public void addItemToPrepToRun(Integer toChecklist) {
-		PackSizeLogger.info("In addItemToPrepToRun()");
+		logger.info("In addItemToPrepToRun()");
 		
 		Integer index = iQFusionTemplate.getiQCheckList().get(toChecklist).size()+1;
 		

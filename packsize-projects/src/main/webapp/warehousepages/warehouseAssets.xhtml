@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<script type ="text/javascript">
+		
+	</script>
+</h:head>
+<h:body style="margin-left:100px;margin-right:100px;">
+<h:form id="warehouseform" enctype="multipart/form-data">
+	<ui:include src="/login/logout.xhtml"/>
+	<p:messages id="messages" showDetail="true" closable="true"/>
+	<p:panel style="text-align:left;width:100%">
+		<f:facet name="header">Information</f:facet>
+		This application is used to track machine tasks.
+	</p:panel>
+	
+	<p:panel style="text-align:center;width:100%">
+		<p:commandButton value="Add Asset" actionListener="#{warehouseComponent.addAsset()}" update="@form"/>
+		<p:dataTable var="asset" value="#{warehouseBean.warehouseComponent.warehouseDetailsList}" id="assetsTable">
+            <p:column headerText="Asset" colspan="8">
+                <h:outputText value="${item.assetID}" />
+            </p:column>
+            <p:column headerText="Machine Type" colspan="1" style="text-align:center">
+                <h:outputText value="${item.machineType}" />
+            </p:column>
+            <p:column headerText="Status" colspan="1" style="text-align:center">
+                <h:outputText value="${item.status}" />
+            </p:column>
+            
+        </p:dataTable>
+	</p:panel>
+</h:form>
+</h:body>
+</html>

@@ -2,6 +2,7 @@ package com.packsize.articlebatch;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,6 +17,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
 import org.apache.commons.collections4.map.HashedMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.util.StringUtil;
@@ -25,12 +28,15 @@ import org.primefaces.model.DefaultStreamedContent;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.packsize.PackSizeLogger;
-
 @Component
 @Scope(value = "session")
-public class ArticleComponent {
+public class ArticleComponent implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LogManager.getLogger();
 	private ArticleDetails articleDetails;
 	
 	private String[] printHeadersArr;
@@ -49,7 +55,7 @@ public class ArticleComponent {
 	}
 	
 	private void initialSetup() {
-		PackSizeLogger.info("In initialSetup()");
+		logger.info("In initialSetup()");
 		setArticleDetails(new ArticleDetails());
 		getArticleDetails().setEmDesigns(loadEMDesignXValues());
 		getArticleDetails().setIqDesigns(loadIQDesignXValues());
@@ -65,14 +71,14 @@ public class ArticleComponent {
 	}
 	
 	public void validations() {
-		PackSizeLogger.info("In validations()");
+		logger.info("In validations()");
 		if((articleDetails.isLabelRequired() && generatePrintData()) || !articleDetails.isLabelRequired()) {
 			if(articleDetails.getUploadFile() != null && articleDetails.getUploadFile().getFileName().contains(".xlsx")) {
-				PackSizeLogger.info(articleDetails.getUploadFile().getFileName());
+				logger.info(articleDetails.getUploadFile().getFileName());
 				parseExcelData();
 			}else {
 				FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Please choose valid file to upload.")); 
-				PackSizeLogger.error("Please upload File.");
+				logger.error("Please upload File.");
 			}
 		}
 		
@@ -83,7 +89,7 @@ public class ArticleComponent {
 	 */
 	private void parseExcelData()
     {
-		PackSizeLogger.info("In parseExcelData()");
+		logger.info("In parseExcelData()");
 		boolean isStyleBlank = false;
 		boolean isValid = true;
 		String articleName;
@@ -135,11 +141,11 @@ public class ArticleComponent {
             	
 	                	if(partNumIndex == 0 || descriptionIndex == 0 || testIndex == 0 || fluteIndex == 0 || fefcoIndex == 0 || lengthIndex == 0 || widthIndex == 0 || depthIndex == 0 || styleIndex == 0){
 	                    	   FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Excel columns validations Fail. Make sure all required columns exists."));   
-	                    	   PackSizeLogger.info("Excel columns validations Fail");
+	                    	   logger.info("Excel columns validations Fail");
 	                    	   isValid = false;
 	                    	   break;
 	                       }else{
-	                    	   PackSizeLogger.info("Excel columns validations Pass");
+	                    	   logger.info("Excel columns validations Pass");
 		                   }
 	                }else{
 	                	if(!formatter.formatCellValue(row.getCell(styleIndex)).isBlank()) {
@@ -203,7 +209,7 @@ public class ArticleComponent {
 	            }
 	        } catch (Exception e) {
 	        	FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Not able to generate CSV file.")); 
-	        	PackSizeLogger.error(e.getMessage());
+	        	logger.error(e.getMessage());
 	        }
 		
     }
@@ -224,7 +230,7 @@ public class ArticleComponent {
 	}
 	
 	private void corrugateQuality(Iterator<Row> rowIterator,DataFormatter formatter) {
-		PackSizeLogger.info("In corrugateQuality");
+		logger.info("In corrugateQuality");
 		
 		corrugateQualityMap.clear();
 		int index = 0;
@@ -248,7 +254,7 @@ public class ArticleComponent {
 		if(!corrugateQualityMap.isEmpty())
 			articleDetails.setCorrugateQuality(corrugateQualityMap.toString());
 		
-		PackSizeLogger.info("Identified Test and Flute's are :" +corrugateQualityMap.toString());
+		logger.info("Identified Test and Flute's are :" +corrugateQualityMap.toString());
 	}
 	
 	private void identifyDuplicateArticles(Row row, DataFormatter formatter) {
@@ -395,7 +401,7 @@ public class ArticleComponent {
 
             if(articleDetails.isLabelRequired())
                 generatePrintHeaders(articleInfo);
-            PackSizeLogger.info(articleInfo.keySet().toString());
+            logger.info(articleInfo.keySet().toString());
             Set < Integer > rowIDS = articleInfo.keySet();
            
             // For storing data into CSV files
@@ -419,9 +425,9 @@ public class ArticleComponent {
     		        .stream(() -> new ByteArrayInputStream(data.toString().getBytes(StandardCharsets.UTF_8)))
     		        .build());
             
-            PackSizeLogger.info("Excel File has been created successfully."); 
+            logger.info("Excel File has been created successfully."); 
         } catch (Exception e) {
-        	PackSizeLogger.error(e.toString());
+        	logger.error(e.toString());
         }
         
     }
@@ -433,7 +439,7 @@ public class ArticleComponent {
      * @return
      */
     private static String[] swapDims(String[] row, ArticleDetails articleDetails) {
-    	PackSizeLogger.info("In swapDims()");
+    	logger.info("In swapDims()");
     	
     			Double l = Double.parseDouble(row[5]);
     			Double w = Double.parseDouble(row[6]);
@@ -451,7 +457,7 @@ public class ArticleComponent {
     					tempw = w;
     					row[5] = tempw.toString();
     					row[6] = templ.toString();
-    					PackSizeLogger.info("Swapped for row "+ row[0]);
+    					logger.info("Swapped for row "+ row[0]);
     				}
     			}else if(row[4] == "2031102") {//FOL FGF H+2W+8FT
     				if(h + (2*w) + (8*0.28) > maxzfold) {//
@@ -459,7 +465,7 @@ public class ArticleComponent {
     					temph = h;
     					row[6] = temph.toString();
     					row[7] = tempw.toString();
-    					PackSizeLogger.info("Swapped for row "+ row[0]);
+    					logger.info("Swapped for row "+ row[0]);
     				}
     			}
     	return row;
