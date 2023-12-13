@@ -1,17 +1,21 @@
 package com.packsize.warehouse;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.SessionScope;
 
 import com.packsize.login.Login;
 import com.packsize.warehouse.google.GoogleSheetsUtil;
@@ -19,7 +23,7 @@ import com.packsize.warehouse.templates.IQFusionChecklistItem;
 import com.packsize.warehouse.templates.IQFusionTemplate;
 
 @Component
-@Scope(value = "session")
+@SessionScope
 public class IQFusionWarehouseComponent implements Serializable{
 	
 	/**
@@ -47,11 +51,7 @@ public class IQFusionWarehouseComponent implements Serializable{
 	private void initialSetup() {
 		logger.info("In initialSetup()");
 		
-		if(warehouseComponent.getWarehouseDetailsList().isEmpty()) {
-			setiQFusionTemplate(new IQFusionTemplate());
-		}else {
-			setiQFusionTemplate(GoogleSheetsUtil.readDataFromSheets(warehouseComponent.getWarehouseDetails().getName(), String.valueOf(warehouseComponent.getWarehouseDetails().getAssetID())));
-		}
+		setiQFusionTemplate(GoogleSheetsUtil.readDataFromSheets(warehouseComponent.getWarehouseDetails().getName(), String.valueOf(warehouseComponent.getWarehouseDetails().getAssetID())));
 	}
 	
 	public void checklistItemAction(String status, IQFusionChecklistItem item) {
@@ -111,8 +111,7 @@ public class IQFusionWarehouseComponent implements Serializable{
 				item.setHours(diffInSeconds);
 			}
 		}
-		//TODO remove this test call
-		//writeDataToGoogleSheets(item);
+		
 		totalHoursByKey(item); 
 		List<IQFusionChecklistItem> returnedList = returnCheckListByKey(item);
 		if(item.getId() < returnedList.size()) {
@@ -185,34 +184,41 @@ public class IQFusionWarehouseComponent implements Serializable{
 	public void addItemObj(Integer parentID) {
 		logger.info("In addItemObj()");
 		
-		IQFusionChecklistItem newItem = new IQFusionChecklistItem();
-		List<IQFusionChecklistItem> returnedList = returnCheckListByKey(parentID);
-		Integer index = returnedList.size()+1;
-		
 		switch(parentID) {
-			case 1 : newItemChecklist(parentID, newItem, index, iQFusionTemplate.getAddItemPrepToRun()); break;
-			case 2 : newItemChecklist(parentID, newItem, index, iQFusionTemplate.getAddItemImagingThePanel()); break;
+			case 1 : newItemChecklist(parentID, iQFusionTemplate.getAddItemPrepToRun()); break;
+			case 2 : newItemChecklist(parentID, iQFusionTemplate.getAddItemImagingThePanel()); break;
 			default : break;
 		}
-		returnedList.add(newItem);
 	}
 	
-	private void newItemChecklist(Integer parentID, IQFusionChecklistItem newItem, Integer index, String newItemName) {
+	private void newItemChecklist(Integer parentID, String newItemName) {
 		logger.info("In newItemChecklist()");
 		
-		newItem.setParentId(parentID);
-		newItem.setId(index);
-		newItem.setName(index.toString().concat(".").concat(newItemName));
-	    newItem.setEnable(false);
+		if(!newItemName.isBlank()) {
+			IQFusionChecklistItem newItem = new IQFusionChecklistItem();
+			List<IQFusionChecklistItem> returnedList = returnCheckListByKey(parentID);
+			Integer index = returnedList.size()+1;
+			
+			newItem.setParentId(parentID);
+			newItem.setId(index);
+			newItem.setName(index.toString().concat(".").concat(newItemName));
+		    newItem.setEnable(false);
+		    
+		    returnedList.add(newItem);
+		}else {
+			FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Check list item name can not be empty."));
+		}
 	}
 	
-	public void addItemToPrepToRun(Integer toChecklist) {
-		logger.info("In addItemToPrepToRun()");
-		
-		Integer index = iQFusionTemplate.getiQCheckList().get(toChecklist).size()+1;
-		
-		iQFusionTemplate.getiQCheckList().get(toChecklist).put(index, index.toString().concat(".").concat(iQFusionTemplate.getAddItemPrepToRun()));
-		iQFusionTemplate.setPrepToRun(iQFusionTemplate.getiQCheckList().get(toChecklist));
+	public void navigateToAssetsPage() {
+		logger.info("In navigateToAssetsPage()");
+		try {
+			warehouseComponent.initialSetup();
+			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+			context.redirect(context.getRequestContextPath() + "/warehousepages/warehouseLanding.xhtml");
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
 	}
 	
 	public IQFusionTemplate getiQFusionTemplate() {

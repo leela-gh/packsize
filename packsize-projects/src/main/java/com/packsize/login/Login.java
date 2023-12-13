@@ -10,13 +10,13 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.SessionScope;
 
 import com.packsize.PackSizeLogger;
 
 @Component
-@Scope(value = "session")
+@SessionScope
 public class Login implements Serializable {
 
 	private static final long serialVersionUID = 1094801825228386363L;

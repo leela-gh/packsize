@@ -26,6 +26,10 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
+import com.google.api.services.sheets.v4.model.DeleteDimensionRequest;
+import com.google.api.services.sheets.v4.model.DimensionRange;
+import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.packsize.warehouse.WarehouseDetails;
 import com.packsize.warehouse.templates.IQFusionChecklistItem;
@@ -79,7 +83,7 @@ public class ReadGoogleSheets {
 	   * https://docs.google.com/spreadsheets/d/1nGZPIsqYNKUdVQc8O-BzujVqDozfO_7CGrOIsR-o7sc/edit?usp=sharing
 	   */
 	  public static IQFusionTemplate readDataFromSheets(String user, String assetID) throws IOException, GeneralSecurityException {
-		  logger.info("readDataFromSheets()");
+		  logger.info("readDataFromSheets() for "+ user +" and asset "+ assetID);
 		  
 		  // Build a new authorized API client service.
 	    final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -117,12 +121,12 @@ public class ReadGoogleSheets {
 			  for (List row : filteredValues) {
 				  IQFusionChecklistItem item = new IQFusionChecklistItem();
 				  
-				  item.setParentId(Integer.parseInt(row.get(4).toString()));
-				  item.setId(Integer.parseInt(row.get(5).toString()));
-				  item.setName((String)row.get(6));
-				  item.setHours(Integer.parseInt(row.get(7).toString()));
-				  item.setEnable(Boolean.parseBoolean(row.get(8).toString()));
-				  item.setContinueItem(Boolean.parseBoolean(row.get(9).toString()));
+				  item.setParentId(Integer.parseInt(row.get(3).toString()));
+				  item.setId(Integer.parseInt(row.get(4).toString()));
+				  item.setName((String)row.get(5));
+				  item.setHours(Integer.parseInt(row.get(6).toString()));
+				  item.setEnable(Boolean.parseBoolean(row.get(7).toString()));
+				  item.setContinueItem(Boolean.parseBoolean(row.get(8).toString()));
 				  
 				  returnedList = retrieveValuesByParentID(iQFusionTemplate,row);
 				  if(item.getId() <= returnedList.size()) {
@@ -153,7 +157,7 @@ public class ReadGoogleSheets {
 		  for (Integer key : subCheckListSizeByParentID.keySet()) {
 		        int size = 0;
 		        for (List row : filteredValues) {
-			        if(row.get(0).toString().equalsIgnoreCase(user) && row.get(1).toString().equalsIgnoreCase(assetID) && row.get(4).toString().equalsIgnoreCase(key.toString())) {
+			        if(row.get(0).toString().equalsIgnoreCase(user) && row.get(1).toString().equalsIgnoreCase(assetID) && row.get(3).toString().equalsIgnoreCase(key.toString())) {
 			        	size++;
 			        }
 			        subCheckListSizeByParentID.put(key, size);
@@ -176,20 +180,20 @@ public class ReadGoogleSheets {
 	  private static List<IQFusionChecklistItem> retrieveValuesByParentID(IQFusionTemplate iQFusionTemplate, List row) {
 		  
 		  List<IQFusionChecklistItem> list = null;
-		  switch(row.get(4).toString()) {
+		  switch(row.get(3).toString()) {
 				  case "1" : list = iQFusionTemplate.getItemListPrepToRun();
-				  					iQFusionTemplate.setTotalHrsPrepToRun(Long.parseLong(row.get(10).toString()));
-				  					iQFusionTemplate.setDisableAddItemToPrepToRun(Boolean.parseBoolean(row.get(11).toString()));break;
+				  					iQFusionTemplate.setTotalHrsPrepToRun(Long.parseLong(row.get(9).toString()));
+				  					iQFusionTemplate.setDisableAddItemToPrepToRun(Boolean.parseBoolean(row.get(10).toString()));break;
 				  case "2" : list = iQFusionTemplate.getItemListImagingThePanel();
-				  					iQFusionTemplate.setTotalHrsImagingThePanel(Long.parseLong(row.get(10).toString()));
-				  					iQFusionTemplate.setDisableAddItemToImagingThePanel(Boolean.parseBoolean(row.get(11).toString()));break;
+				  					iQFusionTemplate.setTotalHrsImagingThePanel(Long.parseLong(row.get(9).toString()));
+				  					iQFusionTemplate.setDisableAddItemToImagingThePanel(Boolean.parseBoolean(row.get(10).toString()));break;
 				  default : break;
 		  }
 		  return list;
 		  
 	  }
 	  
-	  public static List<WarehouseDetails> readWarehouseDetailsFromSheets(String user) throws IOException, GeneralSecurityException {
+	  public static List<WarehouseDetails> readWarehouseDetailsFromSheets(String user, boolean complete) throws IOException, GeneralSecurityException {
 		  logger.info("readWarehouseDetailsFromSheets()");
 		  
 		  // Build a new authorized API client service.
@@ -204,22 +208,23 @@ public class ReadGoogleSheets {
 	        .get(spreadsheetId, range)
 	        .execute();
 	    List<List<Object>> values = response.getValues();
-	    System.out.println(values);
-	    filteredValuesWarehouseDetails.clear();
+	    //filteredValuesWarehouseDetails.clear();
 	    
 	    if (values == null || values.isEmpty()) {
 	    	logger.info("No data found.");
 	    } else {
-		      for (List row : values) {
-		        if(row.get(0).toString().equalsIgnoreCase(user)) {
-		        	filteredValuesWarehouseDetails.add(row);
-		        }
-		     }
+	    	logger.info("Rows in sheet :" + values.size());
+	    	values.remove(0);
+		      //for (List row : values) {
+		        //if(row.get(0).toString().equalsIgnoreCase(user)) {
+		        	//filteredValuesWarehouseDetails.add(row);
+		        //}
+		    // }
 	    }
-	    return retrieveValuesWarehouseDetails(filteredValuesWarehouseDetails);
+	    return retrieveValuesWarehouseDetails(values, complete);
 	  }
 	  
-	  private static List<WarehouseDetails> retrieveValuesWarehouseDetails(List<List<Object>> values) {
+	  private static List<WarehouseDetails> retrieveValuesWarehouseDetails(List<List<Object>> values, boolean complete) {
 		  logger.info("retrieveValuesWarehouseDetails()");
 		  
 		  List<WarehouseDetails> WarehouseDetailsList = new ArrayList<WarehouseDetails>();
@@ -231,25 +236,15 @@ public class ReadGoogleSheets {
 			  warehouseDetails.setAssetID(Long.parseLong(row.get(1).toString()));
 			  warehouseDetails.setMachineType((String)row.get(2));
 			  warehouseDetails.setStatus((String)row.get(3));
-			  			  
+			  if(complete) {
+				  warehouseDetails.setTotalHrs(Long.parseLong(row.get(4).toString())); 
+			  }
 			  WarehouseDetailsList.add(warehouseDetails);
 		   }
 		  return WarehouseDetailsList;
 		}
 	  
-	  private static void clearDefaultCheckListItems(IQFusionTemplate iQFusionTemplate) {
-		  logger.info("clearDefaultCheckListItems()");
-		  
-		  iQFusionTemplate.getItemListPrepToRun().clear();
-		  iQFusionTemplate.getItemListImagingThePanel().clear();
-		  
-	  }
-	  
 	  public static void main(String... args) throws IOException, GeneralSecurityException {
-	    	//writeDataToSheets(null, null, null, 0);
-		  //readDataFromSheets("Test1", "12345");
-		  for(WarehouseDetails row : readWarehouseDetailsFromSheets("Test")) {
-			  System.out.println("loop "+row.getAssetID());
-		  }
+		  
 	  }
 }

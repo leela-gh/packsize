@@ -36,7 +36,7 @@
         	<p:column>
         		<p:outputLabel value="Add CheckList Item :"/><p:spacer width="5"/>
 	        	<p:inputText value="#{warehouseBean.iQFusion.iQFusionTemplate.addItemImagingThePanel}" disabled="#{warehouseBean.iQFusion.iQFusionTemplate.disableAddItemToImagingThePanel}"/><p:spacer width="5"/>
-	        	<p:commandButton value="Add" disabled="#{warehouseBean.iQFusion.iQFusionTemplate.disableAddItemToImagingThePanel}" actionListener="#{warehouseBean.addItem(2)}" update="imagingThePanelTable"/>
+	        	<p:commandButton value="Add" disabled="#{warehouseBean.iQFusion.iQFusionTemplate.disableAddItemToImagingThePanel}" actionListener="#{warehouseBean.addItem(2)}" update="imagingThePanelTable warehouseform:messages"/>
         	</p:column>
         	<p:column styleClass="totHrs">
         		<p:outputLabel value="Total Hours: " /><p:spacer width="5"/>

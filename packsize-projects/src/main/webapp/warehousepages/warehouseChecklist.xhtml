@@ -19,7 +19,10 @@
 		<f:facet name="header">Information</f:facet>
 		This application is used to capture time spent on each asset.
 	</p:panel>
-	
+	<br></br>
+	<p:commandLink value="All Assets" actionListener="#{warehouseBean.iQFusion.navigateToAssetsPage}"/>
+	<br></br>
+	<p:messages id="messages" showDetail="true" closable="true"/>
 	<p:panel style="text-align:left;width:100%">
 		<p:tabView>
 			<p:tab title="Preconfiguration">

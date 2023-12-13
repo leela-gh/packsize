@@ -10,6 +10,6 @@
 	<title></title>
 </h:head>
 <h:body>
-		<p>Welcome #{login.user}</p><div style="width: 100%;text-align: right"><h:commandLink actionListener="#{login.logout}" value="Logout" immediate="true"/></div>
+		<p:outputLabel style="font-size: 25px" value="Welcome #{login.user}"/><div style="width: 100%;text-align: right"><h:commandLink actionListener="#{login.logout}" value="Logout" immediate="true"/></div>
 </h:body>
 </html>

@@ -2,15 +2,16 @@ package com.packsize.warehouse;
 
 public class WarehouseDetails {
 	
-	private long assetID;
+	private Long assetID;
 	private String machineType;
 	private String name;
 	private String status = "In Progress";
+	private Long totalHrs;
 	
-	public long getAssetID() {
+	public Long getAssetID() {
 		return assetID;
 	}
-	public void setAssetID(long assetID) {
+	public void setAssetID(Long assetID) {
 		this.assetID = assetID;
 	}
 	public String getMachineType() {
@@ -31,8 +32,10 @@ public class WarehouseDetails {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
-	
-	
-
+	public Long getTotalHrs() {
+		return totalHrs;
+	}
+	public void setTotalHrs(Long totalHrs) {
+		this.totalHrs = totalHrs;
+	}
 }

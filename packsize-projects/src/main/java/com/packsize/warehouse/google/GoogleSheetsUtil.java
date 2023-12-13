@@ -36,11 +36,11 @@ public class GoogleSheetsUtil {
 		}
 	}
 	
-	public static List<WarehouseDetails> readWarehouseDetailsFromSheets(String name) {
-		logger.info("In readDataFromSheets()");
+	public static List<WarehouseDetails> readWarehouseDetailsFromSheets(String name, boolean complete) {
+		logger.info("In readWarehouseDetailsFromSheets()");
 		
 		 try { 
-			  	return ReadGoogleSheets.readWarehouseDetailsFromSheets(name); 
+			  	return ReadGoogleSheets.readWarehouseDetailsFromSheets(name, complete); 
 			 }catch(IOException | GeneralSecurityException e) 
 		  	{ 
 				 e.printStackTrace(); return null;
@@ -52,6 +52,15 @@ public class GoogleSheetsUtil {
 		logger.info("In writeWarehouseDetailsToSheets()");
 		try {
 			WriteToGoogleSheets.writeWarehouseDetailsToSheets(login, warehouseDetails);
+		} catch (IOException | GeneralSecurityException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void updateWarehouseDetailsToSheets(Login login, WarehouseDetails warehouseDetails) {
+		logger.info("In updateWarehouseDetailsToSheets()");
+		try {
+			WriteToGoogleSheets.updateWarehouseDetailsToSheets(login, warehouseDetails);
 		} catch (IOException | GeneralSecurityException e) {
 			e.printStackTrace();
 		}

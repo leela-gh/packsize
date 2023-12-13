@@ -12,15 +12,15 @@ import javax.faces.context.FacesContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.SessionScope;
 
-import com.packsize.PackSizeLogger;
 import com.packsize.login.Login;
 import com.packsize.warehouse.google.GoogleSheetsUtil;
+import com.packsize.warehouse.templates.IQFusionTemplate;
 
 @Component
-@Scope(value = "session")
+@SessionScope
 public class WarehouseComponent implements Serializable{
 	
 	/**
@@ -40,16 +40,26 @@ public class WarehouseComponent implements Serializable{
 		initialSetup();
 	}
 	
-	private void initialSetup() {
+	protected void initialSetup() {
 		logger.info("In initialSetup()");
 		
-		setWarehouseDetailsList(GoogleSheetsUtil.readWarehouseDetailsFromSheets(login.getUser()));
+		setWarehouseDetailsList(GoogleSheetsUtil.readWarehouseDetailsFromSheets(login.getUser(), false));
 		setWarehouseDetails(new WarehouseDetails());
+		calculateTotals();
+	}
+	
+	private void calculateTotals() {
+		logger.info("In calculateTotals()");
+		
+		for(WarehouseDetails obj : warehouseDetailsList) {
+			IQFusionTemplate template = GoogleSheetsUtil.readDataFromSheets(obj.getName(), obj.getAssetID().toString());
+			obj.setTotalHrs(template.getTotalHrsPrepToRun() + template.getTotalHrsImagingThePanel());
+		}
 	}
 	
 	public void reSet() {
 		logger.info("In reSet()");
-		initialSetup();
+		setWarehouseDetails(new WarehouseDetails());
 		FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Page reset completed."));
 	}
 	
@@ -60,17 +70,28 @@ public class WarehouseComponent implements Serializable{
 		navigateToCheckListPage();
 	}
 	
-	public void navigateToCheckListPage() {
+	private void navigateToCheckListPage() {
 		logger.info("In navigateToCheckListPage()");
 		try {
-			if(!warehouseDetailsList.isEmpty()) {
-				setWarehouseDetails(warehouseDetailsList.get(0));
-			}
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			context.redirect(context.getRequestContextPath() + "/warehousepages/warehouseChecklist.xhtml");
 		} catch (IOException e) {
-			PackSizeLogger.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
+	}
+	
+	public void callFromAssetsTable(WarehouseDetails asset) {
+		logger.info("In callFromAssetsTable()");
+		
+		setWarehouseDetails(asset);
+		navigateToCheckListPage();	
+	}
+	
+	public void assetComplete(WarehouseDetails asset, boolean complete) {
+		logger.info("In assetComplete()");
+		
+		GoogleSheetsUtil.updateWarehouseDetailsToSheets(login, asset);
+		setWarehouseDetailsList(GoogleSheetsUtil.readWarehouseDetailsFromSheets(login.getUser(), complete));
 	}
 	
 	public WarehouseDetails getWarehouseDetails() {

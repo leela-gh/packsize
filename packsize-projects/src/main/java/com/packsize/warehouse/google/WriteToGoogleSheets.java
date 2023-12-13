@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,6 +24,10 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
+import com.google.api.services.sheets.v4.model.DeleteDimensionRequest;
+import com.google.api.services.sheets.v4.model.DimensionRange;
+import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.packsize.login.Login;
@@ -89,7 +94,7 @@ public class WriteToGoogleSheets {
         	String rowIndex = "A".concat(String.valueOf(values.size() + 1));
         	ValueRange body = new ValueRange().setValues(Arrays.asList(
         			Arrays.asList(login.getUser(), warehouseDetails.getAssetID(), warehouseDetails.getMachineType(), 
-        					warehouseDetails.getStatus(), item.getParentId(), item.getId(), item.getName(), 
+        					 item.getParentId(), item.getId(), item.getName(), 
         					item.getHours(), item.isEnable(), item.isContinueItem(), 
         					returnTotalHrsForSubCheckList(item, iQFusionTemplate), 
         					disableAddItemForSubCheckList(item, iQFusionTemplate))));
@@ -102,7 +107,7 @@ public class WriteToGoogleSheets {
     }
     
     public static void writeWarehouseDetailsToSheets(Login login, WarehouseDetails warehouseDetails) throws IOException, GeneralSecurityException {
-    	logger.info("In writeDataToSheets()");
+    	logger.info("In writeWarehouseDetailsToSheets()");
     	
     	// Build a new authorized API client service.
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -120,7 +125,7 @@ public class WriteToGoogleSheets {
         	String rowIndex = "A".concat(String.valueOf(values.size() + 1));
         	ValueRange body = new ValueRange().setValues(Arrays.asList(
         			Arrays.asList(login.getUser(), warehouseDetails.getAssetID(), warehouseDetails.getMachineType(), 
-        					"In Progress")));
+        					warehouseDetails.getStatus())));
         	
           	UpdateValuesResponse result = service.spreadsheets().values()
     								      	     .update(spreadsheetId, rowIndex, body)
@@ -152,7 +157,67 @@ public class WriteToGoogleSheets {
 		return disable;
 	}
     
+    public static void deleteWarehouseDetailsFromSheets(String user) throws IOException, GeneralSecurityException {
+		  logger.info("deleteWarehouseDetailsFromSheets()");
+		  
+		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+	    final String spreadsheetId = "1bbs9YjxG_y9QgErZGawJilHEQ3sHp2dMXdTGRbvOYrE";
+	    final String range = "Sheet1";
+	    Sheets service =
+	        new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+	            .setApplicationName(APPLICATION_NAME)
+	            .build();
+	    
+	    DeleteDimensionRequest deleteRequest = new DeleteDimensionRequest() 
+	    		   .setRange(
+	    		        new DimensionRange()
+	    		            .setSheetId(0)
+	    		            .setDimension("ROWS")
+	    		            .setStartIndex(0)
+	    		            .setEndIndex(1)
+	    		  );
+
+	    		List<Request> requests = new ArrayList<>();
+	    		requests.add(new Request().setDeleteDimension(deleteRequest));
+
+	    		BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
+	    		service.spreadsheets().batchUpdate(spreadsheetId, body).execute();
+	  }
+    
+    public static void updateWarehouseDetailsToSheets(Login login, WarehouseDetails warehouseDetails) throws IOException, GeneralSecurityException {
+    	logger.info("In updateWarehouseDetailsToSheets()");
+    	
+    	// Build a new authorized API client service.
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        final String spreadsheetId = "1bbs9YjxG_y9QgErZGawJilHEQ3sHp2dMXdTGRbvOYrE";
+        final String range = "Sheet1";
+        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                				   .setApplicationName(APPLICATION_NAME)
+                				   .build();
+        ValueRange response = service.spreadsheets().values()
+					                 .get(spreadsheetId, range)
+					                 .execute();
+        List<List<Object>> values = response.getValues();
+        
+        int i = 1;
+        for (List row : values) {
+        	if(row.get(0).toString().equalsIgnoreCase(login.getUser()) && row.get(1).toString().equalsIgnoreCase(warehouseDetails.getAssetID().toString())) {
+	        	 break;
+	        }
+        	i++;
+	     }
+        String rowIndex = "D".concat(String.valueOf(i));
+        ValueRange body = new ValueRange().setValues(Arrays.asList(
+    			Arrays.asList("Complete",warehouseDetails.getTotalHrs())));
+    	
+      	UpdateValuesResponse result = service.spreadsheets().values()
+								      	     .update(spreadsheetId, rowIndex, body)
+								      	     .setValueInputOption("RAW")
+								      	     .execute();
+      	logger.info("Updated row index " + rowIndex);
+    }
+    
     public static void main(String... args) throws IOException, GeneralSecurityException {
-    	//writeDataToSheets(null, null, null, 0);
+    	updateWarehouseDetailsToSheets(null,null);
     }
 }
