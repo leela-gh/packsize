@@ -236,7 +236,7 @@ public class ReadGoogleSheets {
 			  warehouseDetails.setAssetID(Long.parseLong(row.get(1).toString()));
 			  warehouseDetails.setMachineType((String)row.get(2));
 			  warehouseDetails.setStatus((String)row.get(3));
-			  if(complete) {
+			  if(row.size() == 5) {
 				  warehouseDetails.setTotalHrs(Long.parseLong(row.get(4).toString())); 
 			  }
 			  WarehouseDetailsList.add(warehouseDetails);

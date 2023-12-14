@@ -11,6 +11,12 @@
 	<script type ="text/javascript">
 		
 	</script>
+	
+	<style>
+		.ui-datatable tbody td:empty{
+			display: none;
+		}
+	</style>
 </h:head>
 <h:body style="margin-left:100px;margin-right:100px;">
 <h:form id="warehouseform" enctype="multipart/form-data">
@@ -46,30 +52,50 @@
 			</div>
 		</f:facet>
 	</p:panel>
-	<p:panel style="text-align:center;width:100%" rendered="#{not empty warehouseComponent.warehouseDetailsList}" id="assetsTablePanel">
-		
-		<p:dataTable var="asset" value="#{warehouseComponent.warehouseDetailsList}" id="assetsTable">
-            <p:column headerText="Asset" colspan="7">
-                <p:commandLink value="${asset.assetID}" immediate="true" actionListener="#{warehouseComponent.callFromAssetsTable(asset)}" disabled="#{asset.status eq 'Complete' or asset.name ne login.user}"/>
-            </p:column>
-            <p:column headerText="Work By" colspan="1">
-                <p:outputLabel value="${asset.name}"/>
-            </p:column>
-            <p:column headerText="Machine Type" colspan="1" style="text-align:center">
-                <p:outputLabel value="${asset.machineType}" />
-            </p:column>
-            <p:column headerText="Status" colspan="1" style="text-align:center">
-                <p:outputLabel value="${asset.status}" />
-            </p:column>
-            <p:column headerText="Total Hrs" colspan="1" style="text-align:center">
-                <p:outputLabel value="${asset.totalHrs}" />
-            </p:column>
-            <p:column colspan="1" style="text-align:center">
-                <p:commandButton value="Complete" immediate="true" actionListener="#{warehouseComponent.assetComplete(asset, true)}" disabled="#{asset.status eq 'Complete' or asset.name ne login.user}" update="@form"/>
-            </p:column>
-            
-        </p:dataTable>
-	</p:panel>
+	
+	<p:tabView>
+		<p:tab title="My Assets">
+			<p:dataTable var="asset" value="#{warehouseComponent.warehouseDetailsList}">
+	            <p:column headerText="Asset" style="text-align:center" colspan="7">
+	                <p:commandLink value="${asset.assetID}" rendered="#{asset.name eq login.user}" immediate="true" actionListener="#{warehouseComponent.callFromAssetsTable(asset)}" disabled="#{asset.status eq 'Complete'}"/>
+	            </p:column>
+	            <p:column headerText="Work By" style="text-align:center" colspan="1">
+	                <p:outputLabel value="${asset.name}" rendered="#{asset.name eq login.user}"/>
+	            </p:column>
+	            <p:column headerText="Machine Type" colspan="1" style="text-align:center">
+	                <p:outputLabel value="${asset.machineType}" rendered="#{asset.name eq login.user}"/>
+	            </p:column>
+	            <p:column headerText="Status" colspan="1" style="text-align:center" >
+	                <p:outputLabel value="${asset.status}" rendered="#{asset.name eq login.user}"/>
+	            </p:column>
+	            <p:column headerText="Total Hrs" colspan="1" style="text-align:center" >
+	                <p:outputLabel value="${asset.totalHrs}" rendered="#{asset.name eq login.user}"/>
+	            </p:column>
+	            <p:column colspan="1" style="text-align:center">
+	                <p:commandButton value="Complete" rendered="#{asset.name eq login.user}" disabled="#{asset.status eq 'Complete'}" immediate="true" actionListener="#{warehouseComponent.assetComplete(asset, true)}" update="@form"/>
+	            </p:column>
+	        </p:dataTable>
+		</p:tab>
+		<p:tab title="All Assets">
+			<p:dataTable var="asset" value="#{warehouseComponent.warehouseDetailsList}">
+	            <p:column headerText="Asset" colspan="7" style="text-align:center">
+	                <p:outputLabel value="${asset.assetID}"/>
+	            </p:column>
+	            <p:column headerText="Work By" colspan="1" style="text-align:center">
+	                <p:outputLabel value="${asset.name}"/>
+	            </p:column>
+	            <p:column headerText="Machine Type" colspan="1" style="text-align:center">
+	                <p:outputLabel value="${asset.machineType}" />
+	            </p:column>
+	            <p:column headerText="Status" colspan="1" style="text-align:center">
+	                <p:outputLabel value="${asset.status}" />
+	            </p:column>
+	            <p:column headerText="Total Hrs" colspan="1" style="text-align:center">
+	                <p:outputLabel value="${asset.totalHrs}" />
+	            </p:column>
+	        </p:dataTable>
+		</p:tab>
+	</p:tabView>
 </h:form>
 </h:body>
 </html>
