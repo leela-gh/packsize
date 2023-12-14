@@ -43,7 +43,7 @@ public class WarehouseComponent implements Serializable{
 	protected void initialSetup() {
 		logger.info("In initialSetup()");
 		
-		setWarehouseDetailsList(GoogleSheetsUtil.readWarehouseDetailsFromSheets(login.getUser(), false));
+		setWarehouseDetailsList(GoogleSheetsUtil.readWarehouseDetailsFromSheets(login.getUser()));
 		setWarehouseDetails(new WarehouseDetails());
 		calculateTotals();
 	}
@@ -87,11 +87,11 @@ public class WarehouseComponent implements Serializable{
 		navigateToCheckListPage();	
 	}
 	
-	public void assetComplete(WarehouseDetails asset, boolean complete) {
+	public void assetComplete(WarehouseDetails asset) {
 		logger.info("In assetComplete()");
 		
 		GoogleSheetsUtil.updateWarehouseDetailsToSheets(login, asset);
-		setWarehouseDetailsList(GoogleSheetsUtil.readWarehouseDetailsFromSheets(login.getUser(), complete));
+		setWarehouseDetailsList(GoogleSheetsUtil.readWarehouseDetailsFromSheets(login.getUser()));
 	}
 	
 	public WarehouseDetails getWarehouseDetails() {

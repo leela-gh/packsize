@@ -193,7 +193,7 @@ public class ReadGoogleSheets {
 		  
 	  }
 	  
-	  public static List<WarehouseDetails> readWarehouseDetailsFromSheets(String user, boolean complete) throws IOException, GeneralSecurityException {
+	  public static List<WarehouseDetails> readWarehouseDetailsFromSheets(String user) throws IOException, GeneralSecurityException {
 		  logger.info("readWarehouseDetailsFromSheets()");
 		  
 		  // Build a new authorized API client service.
@@ -221,10 +221,10 @@ public class ReadGoogleSheets {
 		        //}
 		    // }
 	    }
-	    return retrieveValuesWarehouseDetails(values, complete);
+	    return retrieveValuesWarehouseDetails(values);
 	  }
 	  
-	  private static List<WarehouseDetails> retrieveValuesWarehouseDetails(List<List<Object>> values, boolean complete) {
+	  private static List<WarehouseDetails> retrieveValuesWarehouseDetails(List<List<Object>> values) {
 		  logger.info("retrieveValuesWarehouseDetails()");
 		  
 		  List<WarehouseDetails> WarehouseDetailsList = new ArrayList<WarehouseDetails>();

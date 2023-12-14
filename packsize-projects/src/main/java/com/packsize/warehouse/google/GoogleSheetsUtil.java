@@ -36,11 +36,11 @@ public class GoogleSheetsUtil {
 		}
 	}
 	
-	public static List<WarehouseDetails> readWarehouseDetailsFromSheets(String name, boolean complete) {
+	public static List<WarehouseDetails> readWarehouseDetailsFromSheets(String name) {
 		logger.info("In readWarehouseDetailsFromSheets()");
 		
 		 try { 
-			  	return ReadGoogleSheets.readWarehouseDetailsFromSheets(name, complete); 
+			  	return ReadGoogleSheets.readWarehouseDetailsFromSheets(name); 
 			 }catch(IOException | GeneralSecurityException e) 
 		  	{ 
 				 e.printStackTrace(); return null;

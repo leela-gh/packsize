@@ -72,7 +72,7 @@
 	                <p:outputLabel value="${asset.totalHrs}" rendered="#{asset.name eq login.user}"/>
 	            </p:column>
 	            <p:column colspan="1" style="text-align:center">
-	                <p:commandButton value="Complete" rendered="#{asset.name eq login.user}" disabled="#{asset.status eq 'Complete'}" immediate="true" actionListener="#{warehouseComponent.assetComplete(asset, true)}" update="@form"/>
+	                <p:commandButton value="Complete" rendered="#{asset.name eq login.user}" disabled="#{asset.status eq 'Complete'}" immediate="true" actionListener="#{warehouseComponent.assetComplete(asset)}" update="@form"/>
 	            </p:column>
 	        </p:dataTable>
 		</p:tab>
