@@ -146,7 +146,12 @@ public class IQFusionWarehouseComponent implements Serializable{
 		
 		switch(item.getParentId()) {
 		case 1 : return iQFusionTemplate.getItemListPrepToRun(); 
-		case 2 : return iQFusionTemplate.getItemListImagingThePanel(); 
+		case 2 : return iQFusionTemplate.getItemListImagingThePanel();
+		case 3 : return iQFusionTemplate.getItemListRunningSoftwareInstaller(); 
+		case 4 : return iQFusionTemplate.getItemListRoboSetup(); 
+		case 5 : return iQFusionTemplate.getItemListPlcSettings(); 
+		case 6 : return iQFusionTemplate.getItemListPacknetSetup(); 
+		case 7 : return iQFusionTemplate.getItemListCalibration();
 		default : return null; 
 		}
 	}
@@ -157,6 +162,11 @@ public class IQFusionWarehouseComponent implements Serializable{
 		switch(parentID) {
 		case 1 : return iQFusionTemplate.getItemListPrepToRun(); 
 		case 2 : return iQFusionTemplate.getItemListImagingThePanel(); 
+		case 3 : return iQFusionTemplate.getItemListRunningSoftwareInstaller(); 
+		case 4 : return iQFusionTemplate.getItemListRoboSetup(); 
+		case 5 : return iQFusionTemplate.getItemListPlcSettings(); 
+		case 6 : return iQFusionTemplate.getItemListPacknetSetup(); 
+		case 7 : return iQFusionTemplate.getItemListCalibration();
 		default : return null; 
 		}
 	}
@@ -167,6 +177,11 @@ public class IQFusionWarehouseComponent implements Serializable{
 		switch(item.getParentId()) {
 		case 1 : iQFusionTemplate.setDisableAddItemToPrepToRun(true); break; 
 		case 2 : iQFusionTemplate.setDisableAddItemToImagingThePanel(true); break;
+		case 3 : iQFusionTemplate.setDisableAddItemToRunningSoftwareInstaller(true); break;
+		case 4 : iQFusionTemplate.setDisableAddItemToRoboSetup(true); break;
+		case 5 : iQFusionTemplate.setDisableAddItemToPlcSettings(true); break;
+		case 6 : iQFusionTemplate.setDisableAddItemToPacknetSetup(true); break;
+		case 7 : iQFusionTemplate.setDisableAddItemToCalibration(true); break;
 		default : break; 
 		}
 	}
@@ -177,6 +192,11 @@ public class IQFusionWarehouseComponent implements Serializable{
 		switch(item.getParentId()) {
 		case 1 : iQFusionTemplate.setTotalHrsPrepToRun(iQFusionTemplate.getTotalHrsPrepToRun() + item.getHours()); break; 
 		case 2 : iQFusionTemplate.setTotalHrsImagingThePanel(iQFusionTemplate.getTotalHrsImagingThePanel() + item.getHours()); break;
+		case 3 : iQFusionTemplate.setTotalHrsRunningSoftwareInstaller(iQFusionTemplate.getTotalHrsRunningSoftwareInstaller() + item.getHours()); break;
+		case 4 : iQFusionTemplate.setTotalHrsRoboSetup(iQFusionTemplate.getTotalHrsRoboSetup() + item.getHours()); break;
+		case 5 : iQFusionTemplate.setTotalHrsPlcSettings(iQFusionTemplate.getTotalHrsPlcSettings() + item.getHours()); break;
+		case 6 : iQFusionTemplate.setTotalHrsPacknetSetup(iQFusionTemplate.getTotalHrsPacknetSetup() + item.getHours()); break;
+		case 7 : iQFusionTemplate.setTotalHrsCalibration(iQFusionTemplate.getTotalHrsCalibration() + item.getHours()); break;
 		default : break; 
 		}
 	}
@@ -187,6 +207,11 @@ public class IQFusionWarehouseComponent implements Serializable{
 		switch(parentID) {
 			case 1 : newItemChecklist(parentID, iQFusionTemplate.getAddItemPrepToRun()); break;
 			case 2 : newItemChecklist(parentID, iQFusionTemplate.getAddItemImagingThePanel()); break;
+			case 3 : newItemChecklist(parentID, iQFusionTemplate.getAddItemrunningSoftwareInstaller()); break;
+			case 4 : newItemChecklist(parentID, iQFusionTemplate.getAddItemRoboSetup()); break;
+			case 5 : newItemChecklist(parentID, iQFusionTemplate.getAddItemPlcSettings()); break;
+			case 6 : newItemChecklist(parentID, iQFusionTemplate.getAddItemPacknetSetup()); break;
+			case 7 : newItemChecklist(parentID, iQFusionTemplate.getAddItemCalibration()); break;
 			default : break;
 		}
 	}

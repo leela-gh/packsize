@@ -175,6 +175,21 @@ public class ReadGoogleSheets {
 		  if(!iQFusionTemplate.isDisableAddItemToImagingThePanel() && subCheckListSizeByParentID.get(2) != 0) {
 			  iQFusionTemplate.getItemListImagingThePanel().get((subCheckListSizeByParentID.get(2)- 1) + 1).setEnable(true);
 		  }
+		  if(!iQFusionTemplate.isDisableAddItemToRunningSoftwareInstaller() && subCheckListSizeByParentID.get(3) != 0) {
+			  iQFusionTemplate.getItemListRunningSoftwareInstaller().get((subCheckListSizeByParentID.get(3)- 1) + 1).setEnable(true);
+		  }
+		  if(!iQFusionTemplate.isDisableAddItemToRoboSetup() && subCheckListSizeByParentID.get(4) != 0) {
+			  iQFusionTemplate.getItemListRoboSetup().get((subCheckListSizeByParentID.get(4)- 1) + 1).setEnable(true);
+		  }
+		  if(!iQFusionTemplate.isDisableAddItemToPlcSettings() && subCheckListSizeByParentID.get(5) != 0) {
+			  iQFusionTemplate.getItemListPlcSettings().get((subCheckListSizeByParentID.get(5)- 1) + 1).setEnable(true);
+		  }
+		  if(!iQFusionTemplate.isDisableAddItemToPacknetSetup() && subCheckListSizeByParentID.get(6) != 0) {
+			  iQFusionTemplate.getItemListPacknetSetup().get((subCheckListSizeByParentID.get(6)- 1) + 1).setEnable(true);
+		  }
+		  if(!iQFusionTemplate.isDisableAddItemToCalibration() && subCheckListSizeByParentID.get(7) != 0) {
+			  iQFusionTemplate.getItemListCalibration().get((subCheckListSizeByParentID.get(7)- 1) + 1).setEnable(true);
+		  }
 	  }
 	  
 	  private static List<IQFusionChecklistItem> retrieveValuesByParentID(IQFusionTemplate iQFusionTemplate, List row) {
@@ -184,9 +199,30 @@ public class ReadGoogleSheets {
 				  case "1" : list = iQFusionTemplate.getItemListPrepToRun();
 				  					iQFusionTemplate.setTotalHrsPrepToRun(Long.parseLong(row.get(9).toString()));
 				  					iQFusionTemplate.setDisableAddItemToPrepToRun(Boolean.parseBoolean(row.get(10).toString()));break;
+				  					
 				  case "2" : list = iQFusionTemplate.getItemListImagingThePanel();
 				  					iQFusionTemplate.setTotalHrsImagingThePanel(Long.parseLong(row.get(9).toString()));
 				  					iQFusionTemplate.setDisableAddItemToImagingThePanel(Boolean.parseBoolean(row.get(10).toString()));break;
+				  					
+				  case "3" : list = iQFusionTemplate.getItemListRunningSoftwareInstaller();
+									iQFusionTemplate.setTotalHrsRunningSoftwareInstaller(Long.parseLong(row.get(9).toString()));
+									iQFusionTemplate.setDisableAddItemToRunningSoftwareInstaller(Boolean.parseBoolean(row.get(10).toString()));break;
+									
+				  case "4" : list = iQFusionTemplate.getItemListRoboSetup();
+									iQFusionTemplate.setTotalHrsRoboSetup(Long.parseLong(row.get(9).toString()));
+									iQFusionTemplate.setDisableAddItemToRoboSetup(Boolean.parseBoolean(row.get(10).toString()));break;
+									
+				  case "5" : list = iQFusionTemplate.getItemListPlcSettings();
+									iQFusionTemplate.setTotalHrsPlcSettings(Long.parseLong(row.get(9).toString()));
+									iQFusionTemplate.setDisableAddItemToPlcSettings(Boolean.parseBoolean(row.get(10).toString()));break;
+									
+				  case "6" : list = iQFusionTemplate.getItemListPacknetSetup();
+									iQFusionTemplate.setTotalHrsPacknetSetup(Long.parseLong(row.get(9).toString()));
+									iQFusionTemplate.setDisableAddItemToPacknetSetup(Boolean.parseBoolean(row.get(10).toString()));break;
+									
+				  case "7" : list = iQFusionTemplate.getItemListCalibration();
+									iQFusionTemplate.setTotalHrsCalibration(Long.parseLong(row.get(9).toString()));
+									iQFusionTemplate.setDisableAddItemToCalibration(Boolean.parseBoolean(row.get(10).toString()));break;
 				  default : break;
 		  }
 		  return list;

@@ -53,7 +53,8 @@ public class WarehouseComponent implements Serializable{
 		
 		for(WarehouseDetails obj : warehouseDetailsList) {
 			IQFusionTemplate template = GoogleSheetsUtil.readDataFromSheets(obj.getName(), obj.getAssetID().toString());
-			obj.setTotalHrs(template.getTotalHrsPrepToRun() + template.getTotalHrsImagingThePanel());
+			obj.setTotalHrs(template.getTotalHrsPrepToRun() + template.getTotalHrsImagingThePanel() + template.getTotalHrsRunningSoftwareInstaller() + template.getTotalHrsRoboSetup()
+							+ template.getTotalHrsPlcSettings() + template.getTotalHrsPacknetSetup() + template.getTotalHrsCalibration());
 		}
 	}
 	

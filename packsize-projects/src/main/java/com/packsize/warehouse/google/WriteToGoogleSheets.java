@@ -140,6 +140,11 @@ public class WriteToGoogleSheets {
 		switch(item.getParentId()) {
 			case 1 : totalHrs = iQFusionTemplate.getTotalHrsPrepToRun(); break;
 			case 2 : totalHrs = iQFusionTemplate.getTotalHrsImagingThePanel(); break;
+			case 3 : totalHrs = iQFusionTemplate.getTotalHrsRunningSoftwareInstaller(); break;
+			case 4 : totalHrs = iQFusionTemplate.getTotalHrsRoboSetup(); break;
+			case 5 : totalHrs = iQFusionTemplate.getTotalHrsPlcSettings(); break;
+			case 6 : totalHrs = iQFusionTemplate.getTotalHrsPacknetSetup(); break;
+			case 7 : totalHrs = iQFusionTemplate.getTotalHrsCalibration(); break;
 			default : break;
 		}
 		
@@ -152,6 +157,11 @@ public class WriteToGoogleSheets {
 		switch(item.getParentId()) {
 			case 1 : disable = iQFusionTemplate.isDisableAddItemToPrepToRun(); break;
 			case 2 : disable = iQFusionTemplate.isDisableAddItemToImagingThePanel(); break;
+			case 3 : disable = iQFusionTemplate.isDisableAddItemToRunningSoftwareInstaller(); break;
+			case 4 : disable = iQFusionTemplate.isDisableAddItemToRoboSetup(); break;
+			case 5 : disable = iQFusionTemplate.isDisableAddItemToPlcSettings(); break;
+			case 6 : disable = iQFusionTemplate.isDisableAddItemToPacknetSetup(); break;
+			case 7 : disable = iQFusionTemplate.isDisableAddItemToCalibration(); break;
 			default : break;
 		}
 		return disable;
