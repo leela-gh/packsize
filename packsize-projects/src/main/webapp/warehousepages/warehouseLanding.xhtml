@@ -56,23 +56,28 @@
 	<p:tabView>
 		<p:tab title="My Assets">
 			<p:dataTable var="asset" value="#{warehouseComponent.warehouseDetailsList}">
-	            <p:column headerText="Asset" style="text-align:center" colspan="7">
-	                <p:commandLink value="${asset.assetID}" rendered="#{asset.name eq login.user}" immediate="true" actionListener="#{warehouseComponent.callFromAssetsTable(asset)}" disabled="#{asset.status eq 'Complete'}"/>
+	            <p:column headerText="Asset" style="text-align:center" colspan="6">
+	                <p:commandLink value="${asset.assetID}" immediate="true" actionListener="#{warehouseComponent.callFromAssetsTable(asset)}" disabled="#{asset.status eq 'Complete'}"/>
 	            </p:column>
 	            <p:column headerText="Work By" style="text-align:center" colspan="1">
-	                <p:outputLabel value="${asset.name}" rendered="#{asset.name eq login.user}"/>
+	                <p:outputLabel value="${asset.name}"/>
 	            </p:column>
 	            <p:column headerText="Machine Type" colspan="1" style="text-align:center">
-	                <p:outputLabel value="${asset.machineType}" rendered="#{asset.name eq login.user}"/>
+	                <p:outputLabel value="${asset.machineType}" />
 	            </p:column>
 	            <p:column headerText="Status" colspan="1" style="text-align:center" >
-	                <p:outputLabel value="${asset.status}" rendered="#{asset.name eq login.user}"/>
+	                <p:outputLabel value="${asset.status}"/>
 	            </p:column>
 	            <p:column headerText="Total Hrs" colspan="1" style="text-align:center" >
-	                <p:outputLabel value="${asset.totalHrs}" rendered="#{asset.name eq login.user}"/>
+	                <p:outputLabel value="${asset.totalHrs}"/>
 	            </p:column>
 	            <p:column colspan="1" style="text-align:center">
-	                <p:commandButton value="Complete" rendered="#{asset.name eq login.user}" disabled="#{asset.status eq 'Complete'}" immediate="true" actionListener="#{warehouseComponent.assetComplete(asset)}" update="@form"/>
+	                <p:commandButton value="Complete" disabled="#{asset.status eq 'Complete'}" immediate="true" actionListener="#{warehouseComponent.assetComplete(asset)}" update="@form"/>
+	            </p:column>
+	            <p:column colspan="1" style="text-align:center">
+	                <p:commandButton value="Download" immediate="true" ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);" actionListener="#{warehouseComponent.download(asset)}">
+	                	<p:fileDownload value="#{warehouseComponent.warehouseDetails.file}"/>
+					</p:commandButton>
 	            </p:column>
 	        </p:dataTable>
 		</p:tab>

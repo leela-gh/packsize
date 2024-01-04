@@ -1,5 +1,7 @@
 package com.packsize.warehouse;
 
+import org.primefaces.model.StreamedContent;
+
 public class WarehouseDetails {
 	
 	private Long assetID;
@@ -7,6 +9,7 @@ public class WarehouseDetails {
 	private String name;
 	private String status = "In Progress";
 	private Long totalHrs;
+	private StreamedContent file;
 	
 	public Long getAssetID() {
 		return assetID;
@@ -37,5 +40,11 @@ public class WarehouseDetails {
 	}
 	public void setTotalHrs(Long totalHrs) {
 		this.totalHrs = totalHrs;
+	}
+	public StreamedContent getFile() {
+		return file;
+	}
+	public void setFile(StreamedContent file) {
+		this.file = file;
 	}
 }

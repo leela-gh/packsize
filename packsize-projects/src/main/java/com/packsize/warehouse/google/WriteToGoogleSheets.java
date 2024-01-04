@@ -32,6 +32,7 @@ import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.packsize.login.Login;
 import com.packsize.warehouse.WarehouseDetails;
+import com.packsize.warehouse.templates.DefaultHoursTemplate;
 import com.packsize.warehouse.templates.IQFusionChecklistItem;
 import com.packsize.warehouse.templates.IQFusionTemplate;
 
@@ -92,12 +93,23 @@ public class WriteToGoogleSheets {
         if(!values.isEmpty()) {
         	
         	String rowIndex = "A".concat(String.valueOf(values.size() + 1));
+        	float totalParentHrs = returnTotalHrsForSubCheckList(item, iQFusionTemplate);
+        	float defaultParentHrs = (float) DefaultHoursTemplate.iQParentListDefaultHrs.get(item.getParentId());
+        	String percentInString = String.valueOf(((totalParentHrs / defaultParentHrs) * 100)).concat("%");
         	ValueRange body = new ValueRange().setValues(Arrays.asList(
-        			Arrays.asList(login.getUser(), warehouseDetails.getAssetID(), warehouseDetails.getMachineType(), 
-        					 item.getParentId(), item.getId(), item.getName(), 
-        					item.getHours(), item.isEnable(), item.isContinueItem(), 
-        					returnTotalHrsForSubCheckList(item, iQFusionTemplate), 
-        					disableAddItemForSubCheckList(item, iQFusionTemplate))));
+        			Arrays.asList(login.getUser(), 
+        						  warehouseDetails.getAssetID(), 
+        						  warehouseDetails.getMachineType(), 
+        						  item.getParentId(), 
+        						  item.getId(), 
+        						  item.getName(), 
+        						  item.getHours(), 
+        						  item.isEnable(), 
+        						  item.isContinueItem(), 
+        						  totalParentHrs, 
+        						  disableAddItemForSubCheckList(item, iQFusionTemplate),
+        						  defaultParentHrs,
+        						  percentInString)));
         	
           	UpdateValuesResponse result = service.spreadsheets().values()
     								      	     .update(spreadsheetId, rowIndex, body)
@@ -228,6 +240,10 @@ public class WriteToGoogleSheets {
     }
     
     public static void main(String... args) throws IOException, GeneralSecurityException {
-    	updateWarehouseDetailsToSheets(null,null);
+    	float totalParentHrs = 10;
+    	float defaultParentHrs = 20;
+    	String percentInString = String.valueOf(((totalParentHrs / defaultParentHrs) * 100)).concat("%");
+    	float a = (float) 100/80;
+    	System.out.println(percentInString);
     }
 }

@@ -103,7 +103,7 @@ public class ReadGoogleSheets {
 	    	logger.info("No data found.");
 	    } else {
 		      for (List row : values) {
-		        if(row.get(0).toString().equalsIgnoreCase(user) && row.get(1).toString().equalsIgnoreCase(assetID)) {
+		        if(row.get(1).toString().equalsIgnoreCase(assetID)) {
 		        	filteredValues.add(row);
 		        }
 		     }
