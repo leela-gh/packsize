@@ -60,7 +60,8 @@ public class Login implements Serializable {
 			HttpSession session = SessionUtils.getSession();
 			session.setAttribute("username", user);
 			try {
-				context.redirect(context.getRequestContextPath() + "/warehousepages/warehouseLanding.xhtml");
+				//context.redirect(context.getRequestContextPath() + "/warehousepages/warehouseLanding.xhtml");
+				context.redirect(context.getRequestContextPath() + "/timecard/timeCardHome.xhtml");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

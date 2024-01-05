@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<style>
+		.ui-datatable .ui-datatable-footer {
+			background: #449cc3;
+		}
+		
+		.ui-panelgrid.ui-noborder .ui-panelgrid-cell{
+			background: #449cc3;
+		}
+	</style>
+</h:head>
+<h:body style="margin-left:100px;margin-right:100px;">
+<h:form id="timeform" enctype="multipart/form-data">
+	<ui:include src="/login/logout.xhtml"/>
+	<p:messages id="messages" showDetail="true" closable="true"/>
+	<p:panel style="text-align:left;width:100%">
+		<f:facet name="header">Information</f:facet>
+		This application is used to track time.
+	</p:panel>
+	<p:panel id="timetable" style="text-align:center;width:100%">
+	<br></br>
+	<br></br>
+		<p:dataTable value="#{timeCardBean.timeCardController.timeCardDetails.timeCardDayList}" var="dayObj">
+			<p:column headerText="Project">
+				<p:inputText size="10" value="#{dayObj.projectName}" />
+			</p:column>
+			<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.timeCards.get('current').get(0)}">
+				<p:inputNumber size="3" value="#{dayObj.sun}" onchange="updateTotals([{name: 'param1', value: '0'}])"/>
+			</p:column>
+			<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.timeCards.get('current').get(1)}">
+				<p:inputNumber size="3" value="#{dayObj.mon}" onchange="updateTotals([{name: 'param1', value: '1'}])"/>
+			</p:column>
+			<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.timeCards.get('current').get(2)}">
+				<p:inputNumber size="3" value="#{dayObj.tue}" onchange="updateTotals([{name: 'param1', value: '2'}])"/>
+			</p:column>
+			<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.timeCards.get('current').get(3)}">
+				<p:inputNumber size="3" value="#{dayObj.wed}" onchange="updateTotals([{name: 'param1', value: '3'}])"/>
+			</p:column>
+			<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.timeCards.get('current').get(4)}">
+				<p:inputNumber size="3" value="#{dayObj.thur}" onchange="updateTotals([{name: 'param1', value: '4'}])"/>
+			</p:column>
+			<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.timeCards.get('current').get(5)}">
+				<p:inputNumber size="3" value="#{dayObj.fri}" onchange="updateTotals([{name: 'param1', value: '5'}])"/>
+			</p:column>
+			<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.timeCards.get('current').get(6)}">
+				<p:inputNumber size="3" value="#{dayObj.sat}" onchange="updateTotals([{name: 'param1', value: '6'}])"/>
+			</p:column>
+			<p:column headerText="Week Totals">
+				
+			</p:column>
+			<f:facet name="footer">
+				<p:panelGrid id="totalGrid" columns="9" styleClass="ui-noborder" style="width:100%;">
+					<p:outputLabel value="Totals:"/>
+					<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.sunTotal}"/>
+					<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.monTotal}" />
+					<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.tueTotal}" />
+					<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.wedTotal}" />
+					<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.thurTotal}" />
+					<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.friTotal}" />
+					<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.satTotal}" />
+					<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.weekTotal}" />
+				</p:panelGrid>
+			</f:facet>
+		</p:dataTable>
+		<br></br>
+		<br></br>
+		<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.sunTotal}" />
+		<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.monTotal}" />
+		<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.tueTotal}" />
+		<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.wedTotal}" />
+		<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.thurTotal}" />
+		<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.friTotal}" />
+		<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.satTotal}" />
+		<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.weekTotal}" />
+					
+		<p:remoteCommand name="updateTotals" actionListener="#{timeCardBean.updateTotals}" update="@form"/>
+		<f:facet name="footer">
+			<div style="text-align: center">
+				<p:commandButton value="save" actionListener="#{timeCardBean.save()}"/>
+				<p:commandButton value="Submit For Approval"/>
+			</div>
+		</f:facet>
+	</p:panel>
+</h:form>
+</h:body>
+</html>
