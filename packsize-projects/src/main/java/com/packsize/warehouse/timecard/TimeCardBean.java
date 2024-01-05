@@ -1,9 +1,6 @@
 package com.packsize.warehouse.timecard;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.temporal.WeekFields;
-import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
@@ -12,10 +9,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.RequestScope;
+import org.springframework.web.context.annotation.SessionScope;
 
 @Component
-@RequestScope
+@SessionScope
 public class TimeCardBean implements Serializable{
 	/**
 	 * 
@@ -32,20 +29,10 @@ public class TimeCardBean implements Serializable{
 		initialSetup();
 	}
 	
-	protected void initialSetup() {
+	private void initialSetup() {
 		logger.info("In initialSetup()");
 		
-		timeCardController.setTimeCardDetails(new TimeCardDetails());
-		generateTimeCard();
-	}
-	
-	private void generateTimeCard() {
-		logger.info("In generateTimeCard()");
-		
-		LocalDate date = LocalDate.now();
-		int weekOfYear = date.get(WeekFields.of(Locale.US).weekOfYear());
-		timeCardController.getTimeCardDetails().getTimeCards().put("current", timeCardController.getAllDaysOfTheWeek(weekOfYear, Locale.US));
-		timeCardController.addDefaultDayFields();
+		timeCardController.initialSetup();
 	}
 	
 	public void updateTotals() {
@@ -69,8 +56,4 @@ public class TimeCardBean implements Serializable{
 	public void setTimeCardController(TimeCardController timeCardController) {
 		this.timeCardController = timeCardController;
 	}
-	
-	
-    
-	
 }

@@ -10,6 +10,7 @@ public class TimeCardDetails {
 	private Map<String, List<LocalDate>> timeCards;
 	private List<TimeCardDay> timeCardDayList;
 	
+	private int weekID;
 	private int sunTotal;
 	private int monTotal;
 	private int tueTotal;

@@ -9,6 +9,8 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -23,11 +25,33 @@ public class TimeCardController implements Serializable{
 	
 	private TimeCardDetails timeCardDetails;
 	
-	public void addDefaultDayFields() {
+	@PostConstruct
+	private void init() {
+		
+		initialSetup();
+	}
+	
+	protected void initialSetup() {
+		logger.info("In initialSetup()");
+		
+		setTimeCardDetails(new TimeCardDetails());
+		generateTimeCard();
+	}
+	
+	protected void generateTimeCard() {
+		logger.info("In generateTimeCard()");
+		
+		LocalDate date = LocalDate.now();
+		int weekOfYear = date.get(WeekFields.of(Locale.US).weekOfYear());
+		getTimeCardDetails().getTimeCards().put("current", getAllDaysOfTheWeek(weekOfYear, Locale.US));
+		addDefaultDayFields();
+	}
+	
+	private void addDefaultDayFields() {
 		logger.info("In addDefaultDayFields()");
 		
-		timeCardDetails.getTimeCardDayList().add(new TimeCardDay());
-		timeCardDetails.getTimeCardDayList().add(new TimeCardDay());
+		getTimeCardDetails().getTimeCardDayList().add(new TimeCardDay());
+		getTimeCardDetails().getTimeCardDayList().add(new TimeCardDay());
 	}
 	
 	protected void calculateTotalsByDayIndex(int day) {
@@ -84,7 +108,7 @@ public class TimeCardController implements Serializable{
 		System.out.println(timeCardDetails.toString());
 	}
 	
-	protected List<LocalDate> getAllDaysOfTheWeek(int weekNumber, Locale locale) {
+	private List<LocalDate> getAllDaysOfTheWeek(int weekNumber, Locale locale) {
         LocalDate firstDayOfWeek = getFirstDayOfWeek(weekNumber, locale);
         return IntStream
                 .rangeClosed(0, 6)
