@@ -3,6 +3,7 @@ package com.packsize.warehouse.timecard;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Year;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
 import java.util.List;
 import java.util.Locale;
@@ -13,8 +14,12 @@ import javax.annotation.PostConstruct;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
+
+import com.packsize.login.Login;
+import com.packsize.warehouse.google.GoogleSheetsUtil;
 
 @Component
 @SessionScope
@@ -22,8 +27,18 @@ public class TimeCardController implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LogManager.getLogger();
+	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E, MMM dd yyyy").withLocale(Locale.US);
+	
+	@Autowired
+	private Login login;
 	
 	private TimeCardDetails timeCardDetails;
+	private TimeCardDetails timeCardDetailsCurrent;
+	private TimeCardDetails timeCardDetailsPrev;
+	private TimeCardDetails timeCardDetailsNext;
+	private List<TimeCardDetails> timeCardDetailsList;
+	
+	private int currentWeekID;
 	
 	@PostConstruct
 	private void init() {
@@ -34,24 +49,161 @@ public class TimeCardController implements Serializable{
 	protected void initialSetup() {
 		logger.info("In initialSetup()");
 		
-		setTimeCardDetails(new TimeCardDetails());
-		generateTimeCard();
+		generateCurrentWeekID();
+		setTimeCardDetailsList(GoogleSheetsUtil.readTimeCardDetailsFromSheets(login.getUser())); 
+		iterateAndRetriveWeek();
+		
+		if(getTimeCardDetailsCurrent() == null) {
+			setTimeCardDetailsCurrent(new TimeCardDetails());
+			generateTimeCardCurrent();
+		}
+		
+		if(getTimeCardDetailsPrev() ==  null) {
+			setTimeCardDetailsPrev(new TimeCardDetails());
+			generateTimeCardPrev();
+		}
+		
+		if(getTimeCardDetailsNext() ==  null) {
+			setTimeCardDetailsNext(new TimeCardDetails());
+			generateTimeCardNext();
+		}
+		
+		setTimeCardDetails(getTimeCardDetailsCurrent());
 	}
 	
-	protected void generateTimeCard() {
-		logger.info("In generateTimeCard()");
+	private void generateCurrentWeekID() {
+		logger.info("In generateCurrentWeekID()");
 		
 		LocalDate date = LocalDate.now();
-		int weekOfYear = date.get(WeekFields.of(Locale.US).weekOfYear());
-		getTimeCardDetails().getTimeCards().put("current", getAllDaysOfTheWeek(weekOfYear, Locale.US));
-		addDefaultDayFields();
+		int currentweekID = date.get(WeekFields.of(Locale.US).weekOfYear());
+		setCurrentWeekID(currentweekID);
 	}
 	
-	private void addDefaultDayFields() {
+	protected void generateTimeCardPrev() {
+		logger.info("In generateTimeCardPrev()");
+		
+		int prevWeekID = getCurrentWeekID() -1;
+		getTimeCardDetailsPrev().setWeekID(prevWeekID);
+		getTimeCardDetailsPrev().getTimeCards().put(String.valueOf(prevWeekID), getAllDaysOfTheWeek(prevWeekID, Locale.US));
+		assignDateHeadersPrev(prevWeekID);
+		addDefaultDayFields("prev");
+	}
+	
+	protected void generateTimeCardNext() {
+		logger.info("In generateTimeCardNext()");
+		
+		int nextWeekID = getCurrentWeekID() +1;
+		getTimeCardDetailsNext().setWeekID(nextWeekID);
+		getTimeCardDetailsNext().getTimeCards().put(String.valueOf(nextWeekID), getAllDaysOfTheWeek(nextWeekID, Locale.US));
+		assignDateHeadersNext(nextWeekID);
+		addDefaultDayFields("next");
+	}
+	
+	protected void generateTimeCardCurrent() {
+		logger.info("In generateTimeCard()");
+		
+		int currentweekID = getCurrentWeekID();
+		getTimeCardDetailsCurrent().setWeekID(currentweekID);
+		getTimeCardDetailsCurrent().getTimeCards().put(String.valueOf(currentweekID), getAllDaysOfTheWeek(currentweekID, Locale.US));
+		assignDateHeaders(currentweekID);
+		addDefaultDayFields("current");
+	}
+	
+	private void assignDateHeaders(int weekID) {
+		logger.info("In assignDateHeaders()");
+			
+		
+		getTimeCardDetailsCurrent().setSunday(getTimeCardDetailsCurrent().getTimeCards().get(String.valueOf(weekID)).get(0).format(formatter));
+		getTimeCardDetailsCurrent().setMonday(getTimeCardDetailsCurrent().getTimeCards().get(String.valueOf(weekID)).get(1).format(formatter));
+		getTimeCardDetailsCurrent().setTuesday(getTimeCardDetailsCurrent().getTimeCards().get(String.valueOf(weekID)).get(2).format(formatter));
+		getTimeCardDetailsCurrent().setWednesday(getTimeCardDetailsCurrent().getTimeCards().get(String.valueOf(weekID)).get(3).format(formatter));
+		getTimeCardDetailsCurrent().setThursday(getTimeCardDetailsCurrent().getTimeCards().get(String.valueOf(weekID)).get(4).format(formatter));
+		getTimeCardDetailsCurrent().setFriday(getTimeCardDetailsCurrent().getTimeCards().get(String.valueOf(weekID)).get(5).format(formatter));
+		getTimeCardDetailsCurrent().setSaturday(getTimeCardDetailsCurrent().getTimeCards().get(String.valueOf(weekID)).get(6).format(formatter));
+	}
+	
+	private void assignDateHeadersPrev(int weekID) {
+		getTimeCardDetailsPrev().setSunday(getTimeCardDetailsPrev().getTimeCards().get(String.valueOf(weekID)).get(0).format(formatter));
+		getTimeCardDetailsPrev().setMonday(getTimeCardDetailsPrev().getTimeCards().get(String.valueOf(weekID)).get(1).format(formatter));
+		getTimeCardDetailsPrev().setTuesday(getTimeCardDetailsPrev().getTimeCards().get(String.valueOf(weekID)).get(2).format(formatter));
+		getTimeCardDetailsPrev().setWednesday(getTimeCardDetailsPrev().getTimeCards().get(String.valueOf(weekID)).get(3).format(formatter));
+		getTimeCardDetailsPrev().setThursday(getTimeCardDetailsPrev().getTimeCards().get(String.valueOf(weekID)).get(4).format(formatter));
+		getTimeCardDetailsPrev().setFriday(getTimeCardDetailsPrev().getTimeCards().get(String.valueOf(weekID)).get(5).format(formatter));
+		getTimeCardDetailsPrev().setSaturday(getTimeCardDetailsPrev().getTimeCards().get(String.valueOf(weekID)).get(6).format(formatter));
+	}
+	
+	private void assignDateHeadersNext(int weekID) {
+		getTimeCardDetailsNext().setSunday(getTimeCardDetailsNext().getTimeCards().get(String.valueOf(weekID)).get(0).format(formatter));
+		getTimeCardDetailsNext().setMonday(getTimeCardDetailsNext().getTimeCards().get(String.valueOf(weekID)).get(1).format(formatter));
+		getTimeCardDetailsNext().setTuesday(getTimeCardDetailsNext().getTimeCards().get(String.valueOf(weekID)).get(2).format(formatter));
+		getTimeCardDetailsNext().setWednesday(getTimeCardDetailsNext().getTimeCards().get(String.valueOf(weekID)).get(3).format(formatter));
+		getTimeCardDetailsNext().setThursday(getTimeCardDetailsNext().getTimeCards().get(String.valueOf(weekID)).get(4).format(formatter));
+		getTimeCardDetailsNext().setFriday(getTimeCardDetailsNext().getTimeCards().get(String.valueOf(weekID)).get(5).format(formatter));
+		getTimeCardDetailsNext().setSaturday(getTimeCardDetailsNext().getTimeCards().get(String.valueOf(weekID)).get(6).format(formatter));
+	}
+	
+	protected void navDate(String action, int currentWeekID) {
+    	logger.info("In navDate() ");
+    	
+    	if(getTimeCardDetails().getTimeCards().containsKey(String.valueOf(currentWeekID))) {
+    		if(action.equalsIgnoreCase("current")) {
+        		setTimeCardDetails(getTimeCardDetailsCurrent());
+        	}else if(action.equalsIgnoreCase("prev")) {
+        		setTimeCardDetails(getTimeCardDetailsPrev());
+        	}else if(action.equalsIgnoreCase("next")) {
+        		setTimeCardDetails(getTimeCardDetailsNext());
+        	}
+        }
+    }
+	
+	private void iterateAndRetriveWeek() {
+		logger.info("In iterateAndRetriveWeek() ");
+		
+		LocalDate date = LocalDate.now();
+		int currentweekID = date.get(WeekFields.of(Locale.US).weekOfYear());
+		String userKeyPrev = login.getUser().concat(String.valueOf(currentweekID -1));
+		String userKey = login.getUser().concat(String.valueOf(currentweekID));
+		String userKeyNext = login.getUser().concat(String.valueOf(currentweekID +1));
+		for(TimeCardDetails timeCard : timeCardDetailsList) {
+			if(timeCard.getUserKey().equalsIgnoreCase(userKey)) {
+				setTimeCardDetailsCurrent(timeCard);
+				assignDateHeaders(timeCard.getWeekID());
+			}else if(timeCard.getUserKey().equalsIgnoreCase(userKeyPrev)) {
+				setTimeCardDetailsPrev(timeCard);
+				assignDateHeadersPrev(timeCard.getWeekID());
+			}else if(timeCard.getUserKey().equalsIgnoreCase(userKeyNext)) {
+				setTimeCardDetailsNext(timeCard);
+				assignDateHeadersPrev(timeCard.getWeekID());
+			}
+		}
+	}
+	
+	private void addDefaultDayFields(String week) {
 		logger.info("In addDefaultDayFields()");
 		
-		getTimeCardDetails().getTimeCardDayList().add(new TimeCardDay());
-		getTimeCardDetails().getTimeCardDayList().add(new TimeCardDay());
+		if(week.equalsIgnoreCase("current")) {
+			getTimeCardDetailsCurrent().getTimeCardDayList().clear();
+			getTimeCardDetailsCurrent().getTimeCardDayList().add(new TimeCardDay());
+			getTimeCardDetailsCurrent().getTimeCardDayList().add(new TimeCardDay());
+			getTimeCardDetailsCurrent().getTimeCardDayList().add(new TimeCardDay());
+			getTimeCardDetailsCurrent().getTimeCardDayList().add(new TimeCardDay());
+			getTimeCardDetailsCurrent().getTimeCardDayList().add(new TimeCardDay());
+		}else if(week.equalsIgnoreCase("prev")) {
+			getTimeCardDetailsPrev().getTimeCardDayList().clear();
+			getTimeCardDetailsPrev().getTimeCardDayList().add(new TimeCardDay());
+			getTimeCardDetailsPrev().getTimeCardDayList().add(new TimeCardDay());
+			getTimeCardDetailsPrev().getTimeCardDayList().add(new TimeCardDay());
+			getTimeCardDetailsPrev().getTimeCardDayList().add(new TimeCardDay());
+			getTimeCardDetailsPrev().getTimeCardDayList().add(new TimeCardDay());
+		}else if(week.equalsIgnoreCase("next")) {
+			getTimeCardDetailsNext().getTimeCardDayList().clear();
+			getTimeCardDetailsNext().getTimeCardDayList().add(new TimeCardDay());
+			getTimeCardDetailsNext().getTimeCardDayList().add(new TimeCardDay());
+			getTimeCardDetailsNext().getTimeCardDayList().add(new TimeCardDay());
+			getTimeCardDetailsNext().getTimeCardDayList().add(new TimeCardDay());
+			getTimeCardDetailsNext().getTimeCardDayList().add(new TimeCardDay());
+		}
+		
 	}
 	
 	protected void calculateTotalsByDayIndex(int day) {
@@ -105,7 +257,23 @@ public class TimeCardController implements Serializable{
 	protected void save() {
 		logger.info("In save() ");
 		
-		System.out.println(timeCardDetails.toString());
+		getTimeCardDetails().setUserKey(login.getUser().concat(String.valueOf(getTimeCardDetails().getWeekID())));
+		getTimeCardDetails().setUser(login.getUser());
+		GoogleSheetsUtil.deleteTimeCardEntryToSheets(getTimeCardDetails());
+		GoogleSheetsUtil.writeTimeCardEntryToSheets(getTimeCardDetails());
+	}
+	
+	protected void submitForApprove() {
+		logger.info("In submitForApprove() ");
+		
+		getTimeCardDetails().setUserKey(login.getUser().concat(String.valueOf(getTimeCardDetails().getWeekID())));
+		setTimeCardDetails(GoogleSheetsUtil.updateTimeCardEntryToSheets(getTimeCardDetails(), "submitForApproval"));
+	}
+	
+	protected void approve(TimeCardDetails timeCardDetails) {
+		logger.info("In approve() ");
+		
+		GoogleSheetsUtil.updateTimeCardEntryToSheets(timeCardDetails, "approve");
 	}
 	
 	private List<LocalDate> getAllDaysOfTheWeek(int weekNumber, Locale locale) {
@@ -123,20 +291,59 @@ public class TimeCardController implements Serializable{
                 .with(WeekFields.of(locale).weekOfWeekBasedYear(), weekNumber);
     }
     
-    public static void main(String[] args) {
-        // Test
-		LocalDate date = LocalDate.now();
-		int weekOfYear = date.get(WeekFields.of(Locale.US).weekOfYear());
-		System.out.println(weekOfYear);
-        //getAllDaysOfTheWeek((weekOfYear-1), Locale.US).forEach(System.out::println);
-        //getAllDaysOfTheWeek((weekOfYear+1), Locale.US).forEach(System.out::println);
-    }
-
     public TimeCardDetails getTimeCardDetails() {
 		return timeCardDetails;
 	}
 
 	public void setTimeCardDetails(TimeCardDetails timeCardDetails) {
 		this.timeCardDetails = timeCardDetails;
+	}
+	
+	public Login getLogin() {
+		return login;
+	}
+
+	public void setLogin(Login login) {
+		this.login = login;
+	}
+
+	public List<TimeCardDetails> getTimeCardDetailsList() {
+		return timeCardDetailsList;
+	}
+
+	public void setTimeCardDetailsList(List<TimeCardDetails> timeCardDetailsList) {
+		this.timeCardDetailsList = timeCardDetailsList;
+	}
+
+	public TimeCardDetails getTimeCardDetailsPrev() {
+		return timeCardDetailsPrev;
+	}
+
+	public void setTimeCardDetailsPrev(TimeCardDetails timeCardDetailsPrev) {
+		this.timeCardDetailsPrev = timeCardDetailsPrev;
+	}
+
+	public TimeCardDetails getTimeCardDetailsNext() {
+		return timeCardDetailsNext;
+	}
+
+	public void setTimeCardDetailsNext(TimeCardDetails timeCardDetailsNext) {
+		this.timeCardDetailsNext = timeCardDetailsNext;
+	}
+
+	public TimeCardDetails getTimeCardDetailsCurrent() {
+		return timeCardDetailsCurrent;
+	}
+
+	public void setTimeCardDetailsCurrent(TimeCardDetails timeCardDetailsCurrent) {
+		this.timeCardDetailsCurrent = timeCardDetailsCurrent;
+	}
+
+	public int getCurrentWeekID() {
+		return currentWeekID;
+	}
+
+	public void setCurrentWeekID(int currentWeekID) {
+		this.currentWeekID = currentWeekID;
 	}
 }

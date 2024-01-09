@@ -62,9 +62,10 @@ public class TimeCardDay {
 	}
 	@Override
 	public String toString() {
-		return "TimeCardDay [projectName=" + projectName + ", sun=" + sun + ", mon=" + mon + ", tue=" + tue + ", wed="
-				+ wed + ", thur=" + thur + ", fri=" + fri + ", sat=" + sat + "]";
+		return "[" + projectName + "," + sun + "," + mon + "," + tue + ","
+				+ wed + "," + thur + "," + fri + "," + sat + "]next";
 	}
+	
 	
 	
 }

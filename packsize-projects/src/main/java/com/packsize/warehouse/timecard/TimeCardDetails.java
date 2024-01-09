@@ -7,9 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 public class TimeCardDetails {
+	private String user;
 	private Map<String, List<LocalDate>> timeCards;
 	private List<TimeCardDay> timeCardDayList;
+	private boolean submitForApproval;
+	private boolean approved;
 	
+	private String userKey;
 	private int weekID;
 	private int sunTotal;
 	private int monTotal;
@@ -19,6 +23,14 @@ public class TimeCardDetails {
 	private int friTotal;
 	private int satTotal;
 	private int weekTotal;
+	
+	private String sunday;
+	private String monday;
+	private String tuesday;
+	private String wednesday;
+	private String thursday;
+	private String friday;
+	private String saturday;
 	
 	public TimeCardDetails() {
 		setTimeCards(new HashMap<String, List<LocalDate>>());
@@ -104,12 +116,108 @@ public class TimeCardDetails {
 		this.weekTotal = weekTotal;
 	}
 
+	public int getWeekID() {
+		return weekID;
+	}
+
+	public void setWeekID(int weekID) {
+		this.weekID = weekID;
+	}
+
+	public String getUserKey() {
+		return userKey;
+	}
+
+	public void setUserKey(String userKey) {
+		this.userKey = userKey;
+	}
+
+	public String getSunday() {
+		return sunday;
+	}
+
+	public void setSunday(String sunday) {
+		this.sunday = sunday;
+	}
+
+	public String getMonday() {
+		return monday;
+	}
+
+	public void setMonday(String monday) {
+		this.monday = monday;
+	}
+
+	public String getTuesday() {
+		return tuesday;
+	}
+
+	public void setTuesday(String tuesday) {
+		this.tuesday = tuesday;
+	}
+
+	public String getWednesday() {
+		return wednesday;
+	}
+
+	public void setWednesday(String wednesday) {
+		this.wednesday = wednesday;
+	}
+
+	public String getThursday() {
+		return thursday;
+	}
+
+	public void setThursday(String thursday) {
+		this.thursday = thursday;
+	}
+
+	public String getFriday() {
+		return friday;
+	}
+
+	public void setFriday(String friday) {
+		this.friday = friday;
+	}
+
+	public String getSaturday() {
+		return saturday;
+	}
+
+	public void setSaturday(String saturday) {
+		this.saturday = saturday;
+	}
+
+	public boolean isSubmitForApproval() {
+		return submitForApproval;
+	}
+
+	public void setSubmitForApproval(boolean submitForApproval) {
+		this.submitForApproval = submitForApproval;
+	}
+
 	@Override
 	public String toString() {
-		return "TimeCardDetails [timeCards=" + timeCards + ", timeCardDayList=" + timeCardDayList + ", sunTotal="
-				+ sunTotal + ", monTotal=" + monTotal + ", tueTotal=" + tueTotal + ", wedTotal=" + wedTotal
-				+ ", thurTotal=" + thurTotal + ", friTotal=" + friTotal + ", satTotal=" + satTotal + ", weekTotal="
-				+ weekTotal + "]";
+		return "TimeCardDetails{}" + timeCards +"{}" + timeCardDayList +"{}"
+				+ userKey +"{}" + weekID +"{}" + sunTotal +"{}" + monTotal +"{}"
+				+ tueTotal +"{}" + wedTotal +"{}" + thurTotal +"{}" + friTotal
+				+ "{}" + satTotal +"{}" + weekTotal +"{}";
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public boolean isApproved() {
+		return approved;
+	}
+
+	public void setApproved(boolean approved) {
+		this.approved = approved;
 	}
 	
 	

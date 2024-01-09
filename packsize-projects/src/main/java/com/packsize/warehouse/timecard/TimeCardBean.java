@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
+import com.packsize.login.Login;
+
 @Component
 @SessionScope
 public class TimeCardBean implements Serializable{
@@ -23,6 +25,8 @@ public class TimeCardBean implements Serializable{
 	@Autowired
 	private TimeCardController timeCardController;
 	
+	
+	
 	@PostConstruct
 	private void init() {
 		
@@ -33,6 +37,12 @@ public class TimeCardBean implements Serializable{
 		logger.info("In initialSetup()");
 		
 		timeCardController.initialSetup();
+	}
+	
+	public void navDate(String action, int currentWeekID) {
+		logger.info("In navDate()");
+		
+		timeCardController.navDate(action, currentWeekID);
 	}
 	
 	public void updateTotals() {
@@ -48,7 +58,23 @@ public class TimeCardBean implements Serializable{
 		
 		timeCardController.save();
 	}
-
+	
+	public void submitForApprove() {
+		logger.info("In submitForApprove()");
+		
+		timeCardController.submitForApprove();
+	}
+	
+	public void approverEdit() {
+		
+	}
+	
+	public void approve(TimeCardDetails timeCardDetails) {
+		logger.info("In approve()");
+		
+		timeCardController.approve(timeCardDetails);
+	}
+	
 	public TimeCardController getTimeCardController() {
 		return timeCardController;
 	}

@@ -5,10 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -34,6 +37,9 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 import com.packsize.warehouse.WarehouseDetails;
 import com.packsize.warehouse.templates.IQFusionChecklistItem;
 import com.packsize.warehouse.templates.IQFusionTemplate;
+import com.packsize.warehouse.timecard.TimeCardDay;
+import com.packsize.warehouse.timecard.TimeCardDetails;
+import com.packsize.warehouse.timecard.TimeCardUser;
 
 public class ReadGoogleSheets {
 	
@@ -41,6 +47,7 @@ public class ReadGoogleSheets {
 	  private static final String APPLICATION_NAME = "Google Sheets API Java Quickstart";
 	  private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 	  private static final String TOKENS_DIRECTORY_PATH = "C:\\Users\\leela.yallabandi\\OneDrive - Packsize International\\Desktop\\DataWareHouse_Prj\\TOKENS_DIRECTORY_PATH";
+	  private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E, MMM dd yyyy").withLocale(Locale.US);
 	  private static List<List<Object>> filteredValues = new ArrayList<List<Object>>();
 	  private static List<List<Object>> filteredValuesWarehouseDetails = new ArrayList<List<Object>>();
 	  private static Map<Integer, Integer> subCheckListSizeByParentID = new HashMap<Integer, Integer>();
@@ -280,7 +287,177 @@ public class ReadGoogleSheets {
 		  return WarehouseDetailsList;
 		}
 	  
-	  public static void main(String... args) throws IOException, GeneralSecurityException {
+	  public static List<TimeCardDetails> readTimecardDetailsFromSheets(String user) throws IOException, GeneralSecurityException {
+		  logger.info("readTimecardDetailsFromSheets()");
 		  
+		  // Build a new authorized API client service.
+	    final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+	    final String spreadsheetId = "1-GG-5_08Sh0sjzjeSzGx6QK22tZWzH5HktKpiAvAShk";
+	    final String range = "Sheet1";
+	    Sheets service =
+	        new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+	            .setApplicationName(APPLICATION_NAME)
+	            .build();
+	    ValueRange response = service.spreadsheets().values()
+	        .get(spreadsheetId, range)
+	        .execute();
+	    List<List<Object>> values = response.getValues();
+	    //filteredValuesWarehouseDetails.clear();
+	    
+	    if (values == null || values.isEmpty()) {
+	    	logger.info("No data found.");
+	    } else {
+	    	logger.info("Rows in sheet :" + values.size());
+	    	values.remove(0);
+		      //for (List row : values) {
+		        //if(row.get(0).toString().equalsIgnoreCase(user)) {
+		        	//filteredValuesWarehouseDetails.add(row);
+		        //}
+		    // }
+	    }
+	    return retrieveValuesTimeCardDetails(values);
+	  }
+	  
+	  public static List<TimeCardUser> readTimecardUsersFromSheets() throws IOException, GeneralSecurityException {
+		  logger.info("readTimecardUsersFromSheets()");
+		  
+		  // Build a new authorized API client service.
+	    final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+	    final String spreadsheetId = "11v-TQvrj0VM5oGQ-gE1rw136hJulUVZ3d_mz__xpvwo";
+	    final String range = "Sheet1";
+	    Sheets service =
+	        new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+	            .setApplicationName(APPLICATION_NAME)
+	            .build();
+	    ValueRange response = service.spreadsheets().values()
+	        .get(spreadsheetId, range)
+	        .execute();
+	    List<List<Object>> values = response.getValues();
+	    //filteredValuesWarehouseDetails.clear();
+	    
+	    if (values == null || values.isEmpty()) {
+	    	logger.info("No data found.");
+	    } else {
+	    	logger.info("Rows in sheet :" + values.size());
+	    	values.remove(0);
+		      //for (List row : values) {
+		        //if(row.get(0).toString().equalsIgnoreCase(user)) {
+		        	//filteredValuesWarehouseDetails.add(row);
+		        //}
+		    // }
+	    }
+	    return retrieveValuesTimeCardUsers(values);
+	  }
+	  
+	  private static List<TimeCardUser> retrieveValuesTimeCardUsers(List<List<Object>> values) {
+		  logger.info("retrieveValuesTimeCardUsers()");
+		  
+		  List<TimeCardUser> timeCardUsersList = new ArrayList<TimeCardUser>();
+		  for (List row : values) {
+			  TimeCardUser timeCardUser = new TimeCardUser();
+			  
+			  timeCardUser.setUserName((String)row.get(0));
+			  timeCardUser.setPsw((String)row.get(1));
+			  timeCardUser.setEmail((String)row.get(2));
+			  timeCardUser.setType((String)row.get(3));
+			  timeCardUser.setRole((String)row.get(4));
+			  
+			  timeCardUsersList.add(timeCardUser);
+		  }
+		  return timeCardUsersList;
+		}
+	  
+	  private static List<TimeCardDetails> retrieveValuesTimeCardDetails(List<List<Object>> values) {
+		  logger.info("retrieveValuesTimeCardDetails()");
+		  
+		  List<TimeCardDetails> timeCardDetailsList = new ArrayList<TimeCardDetails>();
+		  for (List row : values) {
+			  TimeCardDetails timeCardDetails = new TimeCardDetails();
+			  System.out.println(row);
+			  System.out.println("*********");
+			  String timeCardData = (String)row.get(1);
+			  String[] split = timeCardData.split("\\{\\}");
+			  processTimecardDetails(split, timeCardDetails);
+			  
+			  logger.info("****Generating Time Card dates to Java Map*****");
+			  String splitTimeCardCu = split[1].substring(1,split[1].lastIndexOf("}"));
+			  String[] splitTimeCardCuAr = splitTimeCardCu.split("],");
+			  for(int i=0;i<splitTimeCardCuAr.length;i++) {
+				  processTimeCardMap(splitTimeCardCuAr[i].replaceAll("[\\[\\]]", "").trim(),timeCardDetails);
+			  }
+			  
+			  logger.info("****Generating Time Card Day to Java Object*****");
+			  String splitTimeCardDay = split[2].substring(1,split[2].lastIndexOf("]"));
+			  String[] splitTimeCardDay2 = splitTimeCardDay.split("next,");
+			  for(int i=0;i<splitTimeCardDay2.length;i++) {
+				 processTimeCardDays(splitTimeCardDay2[i].replace("next", "").trim(), timeCardDetails.getTimeCardDayList());
+			  }
+			  
+			  timeCardDetails.setUser((String)row.get(2));
+			  timeCardDetails.setSubmitForApproval(Boolean.parseBoolean(row.get(3).toString()));
+			  timeCardDetails.setApproved(Boolean.parseBoolean(row.get(4).toString()));
+			  timeCardDetailsList.add(timeCardDetails);
+		}
+		  
+		  return timeCardDetailsList;
+		}
+	  
+	 private static void processTimecardDetails(String[] split, TimeCardDetails timeCardDetails ) {
+		  logger.info("In processTimecardDetails()");
+		  
+		  timeCardDetails.setUserKey(split[3]);
+		  timeCardDetails.setWeekID(Integer.valueOf(split[4]));
+		  timeCardDetails.setSunTotal(Integer.valueOf(split[5]));
+		  timeCardDetails.setMonTotal(Integer.valueOf(split[6]));
+		  timeCardDetails.setTueTotal(Integer.valueOf(split[7]));
+		  timeCardDetails.setWedTotal(Integer.valueOf(split[8]));
+		  timeCardDetails.setThurTotal(Integer.valueOf(split[9]));
+		  timeCardDetails.setFriTotal(Integer.valueOf(split[10]));
+		  timeCardDetails.setSatTotal(Integer.valueOf(split[11]));
+		  timeCardDetails.setWeekTotal(Integer.valueOf(split[12]));
+	  }
+	  
+	  private static TimeCardDay processTimeCardDays(String day, List<TimeCardDay> timeCardDayList) {
+		  logger.info("In processTimeCardDay()");
+		  TimeCardDay timeCardDay = new TimeCardDay();
+		  
+		  Object[] arr = day.replaceAll("[\\[\\]]", "").trim().split(",");
+		  timeCardDay.setProjectName((String)arr[0]);
+		  timeCardDay.setSun(Integer.parseInt(arr[1].toString()));
+		  timeCardDay.setMon(Integer.parseInt(arr[2].toString()));
+		  timeCardDay.setTue(Integer.parseInt(arr[3].toString()));
+		  timeCardDay.setWed(Integer.parseInt(arr[4].toString()));
+		  timeCardDay.setThur(Integer.parseInt(arr[5].toString()));
+		  timeCardDay.setFri(Integer.parseInt(arr[6].toString()));
+		  timeCardDay.setSat(Integer.parseInt(arr[7].toString()));
+		  
+		  timeCardDayList.add(timeCardDay);
+		  
+		  return timeCardDay;
+	  }
+	  
+	  private static void processTimeCardMap(String map, TimeCardDetails timeCardDetails) {
+		  logger.info("In processTimeCardMap() : " + map);
+		  
+		  List<LocalDate> datesList = new ArrayList<LocalDate>();
+		  Object[] arr = map.split("=");
+		  String key = (String) arr[0];
+		  String[] dates = arr[1].toString().split(",");
+		  for(String date : dates) {
+			  datesList.add(LocalDate.parse(date.trim()));
+		  }
+		  timeCardDetails.getTimeCards().put(key, datesList);
+		  
+		  	timeCardDetails.setSunday(timeCardDetails.getTimeCards().get(key).get(0).format(formatter));
+			timeCardDetails.setMonday(timeCardDetails.getTimeCards().get(key).get(1).format(formatter));
+			timeCardDetails.setTuesday(timeCardDetails.getTimeCards().get(key).get(2).format(formatter));
+			timeCardDetails.setWednesday(timeCardDetails.getTimeCards().get(key).get(3).format(formatter));
+			timeCardDetails.setThursday(timeCardDetails.getTimeCards().get(key).get(4).format(formatter));
+			timeCardDetails.setFriday(timeCardDetails.getTimeCards().get(key).get(5).format(formatter));
+			timeCardDetails.setSaturday(timeCardDetails.getTimeCards().get(key).get(6).format(formatter));
+	  }
+	  
+	  public static void main(String... args) throws IOException, GeneralSecurityException {
+		  readTimecardDetailsFromSheets("");
 	  }
 }

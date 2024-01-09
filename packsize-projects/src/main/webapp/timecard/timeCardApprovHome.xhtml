@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<style>
+		.ui-datatable .ui-datatable-footer {
+			background: #449cc3;
+		}
+		
+		.ui-panelgrid.ui-noborder .ui-panelgrid-cell{
+			background: #449cc3;
+		}
+	</style>
+</h:head>
+<h:body style="margin-left:100px;margin-right:100px;">
+<h:form id="timeform" enctype="multipart/form-data">
+	<ui:include src="/login/logout.xhtml"/>
+	<p:messages id="messages" showDetail="true" closable="true"/>
+	<p:panel style="text-align:left;width:100%">
+		<f:facet name="header">Information</f:facet>
+		This application is used to track time.
+	</p:panel>
+	<p:panel id="timetableArr" style="text-align:center;width:100%">
+	<br></br>
+	<br></br>
+		<p:dataTable value="#{timeCardBean.timeCardController.timeCardDetailsList}" var="userObj">
+			
+			<p:column style="width:2rem">
+                <p:rowToggler/>
+            </p:column>
+			<p:column headerText="User">
+				<p:outputLabel value="#{userObj.user}"/>
+			</p:column>
+			<p:column headerText="Time Period">
+				<p:outputLabel value="#{userObj.sunday}"/> - <p:outputLabel value="#{userObj.saturday}"/>
+			</p:column>
+			<p:column headerText="Hours">
+				<p:outputLabel value="#{userObj.weekTotal}"/>
+			</p:column>
+			<p:column headerText="Status">
+				<p:outputLabel value="#{userObj.approved ? 'Approved' : 'Waiting for Approval'}"/>
+			</p:column>
+			
+			<p:rowExpansion>
+                <div class="product">
+                    <p:dataTable value="#{userObj.timeCardDayList}" var="dayObj">
+						<p:column headerText="Project">
+							<p:outputLabel size="10" value="#{dayObj.projectName}" />
+						</p:column>
+						<p:column headerText="#{userObj.sunday}">
+							<p:outputLabel size="3" value="#{dayObj.sun}" />
+						</p:column>
+						<p:column headerText="#{userObj.monday}">
+							<p:outputLabel size="3" value="#{dayObj.mon}" />
+						</p:column>
+						<p:column headerText="#{userObj.tuesday}">
+							<p:outputLabel size="3" value="#{dayObj.tue}" />
+						</p:column>
+						<p:column headerText="#{userObj.wednesday}">
+							<p:outputLabel size="3" value="#{dayObj.wed}" />
+						</p:column>
+						<p:column headerText="#{userObj.thursday}">
+							<p:outputLabel size="3" value="#{dayObj.thur}" />
+						</p:column>
+						<p:column headerText="#{userObj.friday}">
+							<p:outputLabel size="3" value="#{dayObj.fri}" />
+						</p:column>
+						<p:column headerText="#{userObj.saturday}">
+							<p:outputLabel size="3" value="#{dayObj.sat}" />
+						</p:column>
+						<f:facet name="footer">
+							<div style="text-align: center">
+								<p:commandButton value="Approve timesheet" rendered="#{!userObj.approved}" actionListener="#{timeCardBean.approve(userObj)}" update="@form"/>
+							</div>
+						</f:facet>
+					</p:dataTable>
+                </div>
+            </p:rowExpansion>
+         </p:dataTable>
+		<br></br>
+		<br></br>
+	</p:panel>
+</h:form>
+</h:body>
+</html>

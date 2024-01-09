@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,6 +38,7 @@ import com.packsize.warehouse.WarehouseDetails;
 import com.packsize.warehouse.templates.DefaultHoursTemplate;
 import com.packsize.warehouse.templates.IQFusionChecklistItem;
 import com.packsize.warehouse.templates.IQFusionTemplate;
+import com.packsize.warehouse.timecard.TimeCardDetails;
 
 public class WriteToGoogleSheets {
 	
@@ -146,6 +150,33 @@ public class WriteToGoogleSheets {
         }
     }
     
+    public static void writeTimeCardEntryToSheets(TimeCardDetails timeCardDetails) throws IOException, GeneralSecurityException {
+    	logger.info("In writeTimeCardEntryToSheets()");
+    	
+    	// Build a new authorized API client service.
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        final String spreadsheetId = "1-GG-5_08Sh0sjzjeSzGx6QK22tZWzH5HktKpiAvAShk";
+        final String range = "Sheet1";
+        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                				   .setApplicationName(APPLICATION_NAME)
+                				   .build();
+        ValueRange response = service.spreadsheets().values()
+					                 .get(spreadsheetId, range)
+					                 .execute();
+        List<List<Object>> values = response.getValues();
+        
+        if(!values.isEmpty()) {
+        	String rowIndex = "A".concat(String.valueOf(values.size() + 1));
+        	ValueRange body = new ValueRange().setValues(Arrays.asList(
+        			Arrays.asList(timeCardDetails.getUserKey(),timeCardDetails.toString(),timeCardDetails.getUser(),false,false)));
+        	
+          	UpdateValuesResponse result = service.spreadsheets().values()
+    								      	     .update(spreadsheetId, rowIndex, body)
+    								      	     .setValueInputOption("RAW")
+    								      	     .execute();
+        }
+    }
+    
     private static long returnTotalHrsForSubCheckList(IQFusionChecklistItem item, IQFusionTemplate iQFusionTemplate) {
 		long totalHrs = 0;
 		
@@ -239,11 +270,98 @@ public class WriteToGoogleSheets {
       	logger.info("Updated row index " + rowIndex);
     }
     
+    public static TimeCardDetails updateTimeCardEntryToSheets(TimeCardDetails timeCardDetails, String action) throws IOException, GeneralSecurityException {
+    	logger.info("In updateTimeCardEntryToSheets()");
+    	
+    	// Build a new authorized API client service.
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        final String spreadsheetId = "1-GG-5_08Sh0sjzjeSzGx6QK22tZWzH5HktKpiAvAShk";
+        final String range = "Sheet1";
+        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                				   .setApplicationName(APPLICATION_NAME)
+                				   .build();
+        ValueRange response = service.spreadsheets().values()
+					                 .get(spreadsheetId, range)
+					                 .execute();
+        List<List<Object>> values = response.getValues();
+        
+        int i = 1;
+        for (List row : values) {
+        	if(row.get(0).toString().equalsIgnoreCase(timeCardDetails.getUserKey())) {
+	        	 break;
+	        }
+        	i++;
+	     }
+        
+        String rowIndex = "";
+        if("submitForApproval".equalsIgnoreCase(action)){
+        	 rowIndex = "D".concat(String.valueOf(i));
+        }else if("approve".equalsIgnoreCase(action)) {
+       	 	 rowIndex = "E".concat(String.valueOf(i));
+        } 
+        
+        ValueRange body = new ValueRange().setValues(Arrays.asList(Arrays.asList(true)));
+    	
+      	UpdateValuesResponse result = service.spreadsheets().values()
+								      	     .update(spreadsheetId, rowIndex, body)
+								      	     .setValueInputOption("RAW")
+								      	     .execute();
+      	timeCardDetails.setSubmitForApproval(true);
+      	logger.info("Updated row index " + rowIndex);
+      	return timeCardDetails;
+    }
+    
+    public static void deleteTimeCardEntryToSheets(TimeCardDetails timeCardDetails) throws IOException, GeneralSecurityException {
+		  logger.info("deleteTimeCardEntryToSheets()");
+		  
+		final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+	    final String spreadsheetId = "1-GG-5_08Sh0sjzjeSzGx6QK22tZWzH5HktKpiAvAShk";
+	    final String range = "Sheet1";
+	    Sheets service =
+	        new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+	            .setApplicationName(APPLICATION_NAME)
+	            .build();
+	    
+	    ValueRange response = service.spreadsheets().values()
+                .get(spreadsheetId, range)
+                .execute();
+		List<List<Object>> values = response.getValues();
+		
+		int i = 0;
+		boolean found = false;
+		for (List row : values) {
+			if(row.get(0).toString().equalsIgnoreCase(timeCardDetails.getUserKey())) {
+				logger.info(timeCardDetails.getUserKey() + " Found on Index "+ i);
+				found = true;
+				break;
+			}
+			i++;
+		}
+	    if(found) {
+			DeleteDimensionRequest deleteRequest = new DeleteDimensionRequest() 
+		    		   .setRange(
+		    		        new DimensionRange()
+		    		            .setSheetId(0)
+		    		            .setDimension("ROWS")
+		    		            .setStartIndex(i)
+		    		            .setEndIndex(i+1)
+		    		  );
+
+		    		List<Request> requests = new ArrayList<>();
+		    		requests.add(new Request().setDeleteDimension(deleteRequest));
+
+		    		BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
+		    		service.spreadsheets().batchUpdate(spreadsheetId, body).execute();
+		    		
+		    		logger.info(timeCardDetails.getUserKey() + " Deleted ");		
+		}
+	    
+	  }
+    
     public static void main(String... args) throws IOException, GeneralSecurityException {
-    	float totalParentHrs = 10;
-    	float defaultParentHrs = 20;
-    	String percentInString = String.valueOf(((totalParentHrs / defaultParentHrs) * 100)).concat("%");
-    	float a = (float) 100/80;
-    	System.out.println(percentInString);
+    	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E, MMM dd yyyy").withLocale(Locale.US);
+    	LocalDate today = LocalDate.parse("2019-03-29");
+    	
+    	System.out.println(today.format(formatter));
     }
 }

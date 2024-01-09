@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
 import com.packsize.PackSizeLogger;
+import com.packsize.warehouse.timecard.TimeCardUser;
 
 @Component
 @SessionScope
@@ -25,6 +26,7 @@ public class Login implements Serializable {
 	private String pwd;
 	private String msg;
 	private String user;
+	private TimeCardUser loginUser;
 
 	public String getPwd() {
 		return pwd;
@@ -55,13 +57,21 @@ public class Login implements Serializable {
 		logger.info("In validateUsernamePassword");
 		
 		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-		boolean valid = true;
+		boolean valid = false;
+		if(LoginCredentials.getUserMap().containsKey(user) && LoginCredentials.getUserMap().get(user).getPsw().equals(pwd))
+			valid= true;
 		if (valid) {
 			HttpSession session = SessionUtils.getSession();
 			session.setAttribute("username", user);
+			setLoginUser(LoginCredentials.getUserMap().get(user));
 			try {
 				//context.redirect(context.getRequestContextPath() + "/warehousepages/warehouseLanding.xhtml");
-				context.redirect(context.getRequestContextPath() + "/timecard/timeCardHome.xhtml");
+				if(loginUser.getRole().equalsIgnoreCase("admin")) {
+					context.redirect(context.getRequestContextPath() + "/timecard/timeCardApprovHome.xhtml");
+				}else {
+					context.redirect(context.getRequestContextPath() + "/timecard/timeCardHome.xhtml");
+				}
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -87,5 +97,13 @@ public class Login implements Serializable {
 		} catch (IOException e) {
 			PackSizeLogger.error(e.getMessage());
 		}
+	}
+
+	public TimeCardUser getLoginUser() {
+		return loginUser;
+	}
+
+	public void setLoginUser(TimeCardUser loginUser) {
+		this.loginUser = loginUser;
 	}
 }
