@@ -65,14 +65,41 @@ public class TimeCardBean implements Serializable{
 		timeCardController.submitForApprove();
 	}
 	
-	public void approverEdit() {
+	public void approverEditUpdateTotals() {
+		logger.info("In approverEditUpdateTotals()");
 		
+		String param1 = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("param1");
+		logger.info("Param Receive "+ param1);
+		Object param2 = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("param2");
+		timeCardController.setTimeCardDetails((TimeCardDetails) param2);
+		System.out.println(timeCardController.getTimeCardDetails().getUser());
+		//timeCardController.calculateTotalsByDayIndex(Integer.valueOf(param1));
 	}
 	
-	public void approve(TimeCardDetails timeCardDetails) {
+	public void approverEditUpdateTotalsTest() {
+		logger.info("In approverEditUpdateTotals()");
+		
+		String param1 = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("param1");
+		logger.info("Param Receive "+ param1);
+		String param2 = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("param2");
+		logger.info("Param Receive "+ param2);
+		//timeCardController.setTimeCardDetails((TimeCardDetails) param2);
+		//System.out.println(timeCardController.getTimeCardDetails().getUser());
+		//timeCardController.calculateTotalsByDayIndex(Integer.valueOf(param1));
+	}
+	
+	public void approve() {
 		logger.info("In approve()");
 		
-		timeCardController.approve(timeCardDetails);
+		timeCardController.approve();
+	}
+	
+	public void editAndApprove(TimeCardDetails timeCardDetails) {
+		logger.info("In editAndApprove()");
+		
+		timeCardController.setTimeCardDetails(timeCardDetails);
+		System.out.println(timeCardController.getTimeCardDetails().toString());
+		
 	}
 	
 	public TimeCardController getTimeCardController() {

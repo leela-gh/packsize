@@ -150,7 +150,7 @@ public class WriteToGoogleSheets {
         }
     }
     
-    public static void writeTimeCardEntryToSheets(TimeCardDetails timeCardDetails) throws IOException, GeneralSecurityException {
+    public static void writeTimeCardEntryToSheets(TimeCardDetails timeCardDetails, String action) throws IOException, GeneralSecurityException {
     	logger.info("In writeTimeCardEntryToSheets()");
     	
     	// Build a new authorized API client service.
@@ -167,10 +167,16 @@ public class WriteToGoogleSheets {
         
         if(!values.isEmpty()) {
         	String rowIndex = "A".concat(String.valueOf(values.size() + 1));
-        	ValueRange body = new ValueRange().setValues(Arrays.asList(
-        			Arrays.asList(timeCardDetails.getUserKey(),timeCardDetails.toString(),timeCardDetails.getUser(),false,false)));
+        	ValueRange body = null;
+        	if("ApproverSave".equalsIgnoreCase(action)) {
+        		 body = new ValueRange().setValues(Arrays.asList(
+            			Arrays.asList(timeCardDetails.getUserKey(),timeCardDetails.toString(),timeCardDetails.getUser(),true,true)));
+        	}else {
+        		 body = new ValueRange().setValues(Arrays.asList(
+            			Arrays.asList(timeCardDetails.getUserKey(),timeCardDetails.toString(),timeCardDetails.getUser(),false,false)));
+        	}
         	
-          	UpdateValuesResponse result = service.spreadsheets().values()
+        	UpdateValuesResponse result = service.spreadsheets().values()
     								      	     .update(spreadsheetId, rowIndex, body)
     								      	     .setValueInputOption("RAW")
     								      	     .execute();
@@ -306,7 +312,11 @@ public class WriteToGoogleSheets {
 								      	     .update(spreadsheetId, rowIndex, body)
 								      	     .setValueInputOption("RAW")
 								      	     .execute();
-      	timeCardDetails.setSubmitForApproval(true);
+      	
+      	if("submitForApproval".equalsIgnoreCase(action)){
+      		timeCardDetails.setSubmitForApproval(true);
+      	}
+      	
       	logger.info("Updated row index " + rowIndex);
       	return timeCardDetails;
     }

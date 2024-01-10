@@ -173,7 +173,7 @@ public class TimeCardController implements Serializable{
 				assignDateHeadersPrev(timeCard.getWeekID());
 			}else if(timeCard.getUserKey().equalsIgnoreCase(userKeyNext)) {
 				setTimeCardDetailsNext(timeCard);
-				assignDateHeadersPrev(timeCard.getWeekID());
+				assignDateHeadersNext(timeCard.getWeekID());
 			}
 		}
 	}
@@ -260,7 +260,7 @@ public class TimeCardController implements Serializable{
 		getTimeCardDetails().setUserKey(login.getUser().concat(String.valueOf(getTimeCardDetails().getWeekID())));
 		getTimeCardDetails().setUser(login.getUser());
 		GoogleSheetsUtil.deleteTimeCardEntryToSheets(getTimeCardDetails());
-		GoogleSheetsUtil.writeTimeCardEntryToSheets(getTimeCardDetails());
+		GoogleSheetsUtil.writeTimeCardEntryToSheets(getTimeCardDetails(),"save");
 	}
 	
 	protected void submitForApprove() {
@@ -270,10 +270,13 @@ public class TimeCardController implements Serializable{
 		setTimeCardDetails(GoogleSheetsUtil.updateTimeCardEntryToSheets(getTimeCardDetails(), "submitForApproval"));
 	}
 	
-	protected void approve(TimeCardDetails timeCardDetails) {
+	protected void approve() {
 		logger.info("In approve() ");
 		
+		GoogleSheetsUtil.deleteTimeCardEntryToSheets(timeCardDetails);
+		GoogleSheetsUtil.writeTimeCardEntryToSheets(timeCardDetails,"ApproverSave");
 		GoogleSheetsUtil.updateTimeCardEntryToSheets(timeCardDetails, "approve");
+		setTimeCardDetailsList(GoogleSheetsUtil.readTimeCardDetailsFromSheets(login.getUser())); 
 	}
 	
 	private List<LocalDate> getAllDaysOfTheWeek(int weekNumber, Locale locale) {

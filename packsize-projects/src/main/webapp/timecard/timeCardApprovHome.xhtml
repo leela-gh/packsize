@@ -9,6 +9,11 @@
 
 <h:head>
 	<style>
+		
+		.ui-datatable tbody td:empty{
+			display: none;
+		}
+	
 		.ui-datatable .ui-datatable-footer {
 			background: #449cc3;
 		}
@@ -32,19 +37,22 @@
 		<p:dataTable value="#{timeCardBean.timeCardController.timeCardDetailsList}" var="userObj">
 			
 			<p:column style="width:2rem">
-                <p:rowToggler/>
+                <p:rowToggler rendered="#{userObj.submitForApproval}"/>
             </p:column>
 			<p:column headerText="User">
-				<p:outputLabel value="#{userObj.user}"/>
+				<p:outputLabel value="#{userObj.user}" rendered="#{userObj.submitForApproval}"/>
 			</p:column>
 			<p:column headerText="Time Period">
-				<p:outputLabel value="#{userObj.sunday}"/> - <p:outputLabel value="#{userObj.saturday}"/>
+				<p:outputLabel value="#{userObj.sunday}" rendered="#{userObj.submitForApproval}"/>  <p:outputLabel value="#{userObj.saturday}" rendered="#{userObj.submitForApproval}"/>
 			</p:column>
 			<p:column headerText="Hours">
-				<p:outputLabel value="#{userObj.weekTotal}"/>
+				<p:outputLabel value="#{userObj.weekTotal}" rendered="#{userObj.submitForApproval}"/>
 			</p:column>
 			<p:column headerText="Status">
-				<p:outputLabel value="#{userObj.approved ? 'Approved' : 'Waiting for Approval'}"/>
+				<p:outputLabel value="#{userObj.approved ? 'Approved' : 'Waiting for Approval'}" rendered="#{userObj.submitForApproval}"/>
+			</p:column>
+			<p:column headerText="Edit and Approve">
+				<p:commandButton value="Edit" rendered="#{userObj.submitForApproval}" disabled="#{userObj.approved}"  actionListener="#{timeCardBean.editAndApprove(userObj)}" update="timeform:timetable" oncomplete="PF('dlg2').show();"/>
 			</p:column>
 			
 			<p:rowExpansion>
@@ -76,7 +84,7 @@
 						</p:column>
 						<f:facet name="footer">
 							<div style="text-align: center">
-								<p:commandButton value="Approve timesheet" rendered="#{!userObj.approved}" actionListener="#{timeCardBean.approve(userObj)}" update="@form"/>
+								<p:commandButton value="Approve timesheet" disabled="#{userObj.approved}" actionListener="#{timeCardBean.approve(userObj)}" update="timeform:timetableArr"/>
 							</div>
 						</f:facet>
 					</p:dataTable>
@@ -85,6 +93,67 @@
          </p:dataTable>
 		<br></br>
 		<br></br>
+		<p:dialog header="Modal Dialog" widgetVar="dlg2" modal="true" height="400" width="1500">
+			<p:panel widgetVar="timetable" id="timetable" style="text-align:center;width:100%">
+				<p:dataTable value="#{timeCardBean.timeCardController.timeCardDetails.timeCardDayList}" var="dayObj">
+					<p:column headerText="Project">
+						<p:inputText size="10" value="#{dayObj.projectName}"/>
+					</p:column>
+					<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.sunday}">
+						<p:inputNumber size="3" value="#{dayObj.sun}" disabled="true"/>
+					</p:column>
+					<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.monday}">
+						<p:inputNumber size="3" value="#{dayObj.mon}" onchange="updateTotals([{name: 'param1', value: '1'}])"/>
+					</p:column>
+					<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.tuesday}">
+						<p:inputNumber size="3" value="#{dayObj.tue}" onchange="updateTotals([{name: 'param1', value: '2'}])"/>
+					</p:column>
+					<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.wednesday}">
+						<p:inputNumber size="3" value="#{dayObj.wed}" onchange="updateTotals([{name: 'param1', value: '3'}])"/>
+					</p:column>
+					<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.thursday}">
+						<p:inputNumber size="3" value="#{dayObj.thur}" onchange="updateTotals([{name: 'param1', value: '4'}])"/>
+					</p:column>
+					<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.friday}">
+						<p:inputNumber size="3" value="#{dayObj.fri}" onchange="updateTotals([{name: 'param1', value: '5'}])"/>
+					</p:column>
+					<p:column headerText="#{timeCardBean.timeCardController.timeCardDetails.saturday}">
+						<p:inputNumber size="3" value="#{dayObj.sat}" disabled="true"/>
+					</p:column>
+					<p:column headerText="Week Totals">
+						
+					</p:column>
+					<f:facet name="footer">
+						<p:panelGrid id="totalGrid" columns="9" styleClass="ui-noborder" style="width:100%;">
+							<p:outputLabel value="Totals:"/>
+							<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.sunTotal}"/>
+							<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.monTotal}" />
+							<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.tueTotal}" />
+							<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.wedTotal}" />
+							<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.thurTotal}" />
+							<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.friTotal}" />
+							<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.satTotal}" />
+							<p:outputLabel value="#{timeCardBean.timeCardController.timeCardDetails.weekTotal}" />
+						</p:panelGrid>
+					</f:facet>
+				</p:dataTable>
+				<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.sunTotal}" />
+				<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.monTotal}" />
+				<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.tueTotal}" />
+				<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.wedTotal}" />
+				<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.thurTotal}" />
+				<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.friTotal}" />
+				<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.satTotal}" />
+				<h:inputHidden value="#{timeCardBean.timeCardController.timeCardDetails.weekTotal}" />
+							
+				<p:remoteCommand name="updateTotals" actionListener="#{timeCardBean.updateTotals}" update="timetable"/>
+				<f:facet name="footer">
+					<div style="text-align: center">
+						<p:commandButton value="Approve" actionListener="#{timeCardBean.approve()}" onclick="PF('dlg2').hide();" update="timeform:timetableArr"/>
+					</div>
+				</f:facet>
+			</p:panel>
+		</p:dialog> 
 	</p:panel>
 </h:form>
 </h:body>

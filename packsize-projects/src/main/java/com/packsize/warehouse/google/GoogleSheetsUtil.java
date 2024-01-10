@@ -78,10 +78,10 @@ public class GoogleSheetsUtil {
 		}
 	}
 	
-	public static void writeTimeCardEntryToSheets(TimeCardDetails timeCardDetails) {
+	public static void writeTimeCardEntryToSheets(TimeCardDetails timeCardDetails, String action) {
 		logger.info("In writeTimeCardEntryToSheets()");
 		try {
-			WriteToGoogleSheets.writeTimeCardEntryToSheets(timeCardDetails);
+			WriteToGoogleSheets.writeTimeCardEntryToSheets(timeCardDetails,action);
 		} catch (IOException | GeneralSecurityException e) {
 			e.printStackTrace();
 		}
