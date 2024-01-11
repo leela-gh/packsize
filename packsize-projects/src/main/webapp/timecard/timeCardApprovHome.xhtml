@@ -82,12 +82,28 @@
 						<p:column headerText="#{userObj.saturday}">
 							<p:outputLabel size="3" value="#{dayObj.sat}" />
 						</p:column>
+						<p:column headerText="Week Totals">
+						
+						</p:column>
 						<f:facet name="footer">
-							<div style="text-align: center">
-								<p:commandButton value="Approve timesheet" disabled="#{userObj.approved}" actionListener="#{timeCardBean.approve(userObj)}" update="timeform:timetableArr"/>
-							</div>
+							<p:panelGrid id="totalGrid" columns="9" styleClass="ui-noborder" style="width:100%;">
+								<p:outputLabel value="Totals:"/>
+								<p:outputLabel value="#{userObj.sunTotal}"/>
+								<p:outputLabel value="#{userObj.monTotal}" />
+								<p:outputLabel value="#{userObj.tueTotal}" />
+								<p:outputLabel value="#{userObj.wedTotal}" />
+								<p:outputLabel value="#{userObj.thurTotal}" />
+								<p:outputLabel value="#{userObj.friTotal}" />
+								<p:outputLabel value="#{userObj.satTotal}" />
+								<p:outputLabel value="#{userObj.weekTotal}" />
+							</p:panelGrid>
 						</f:facet>
 					</p:dataTable>
+					<br></br>
+					<div style="text-align: center">
+						<p:commandButton value="Approve timesheet" disabled="#{userObj.approved}" actionListener="#{timeCardBean.approveOnly(userObj)}" update="timeform:timetableArr"/>
+					</div>
+					<br></br>
                 </div>
             </p:rowExpansion>
          </p:dataTable>

@@ -49,7 +49,6 @@ public class ReadGoogleSheets {
 	  private static final String TOKENS_DIRECTORY_PATH = "C:\\Users\\leela.yallabandi\\OneDrive - Packsize International\\Desktop\\DataWareHouse_Prj\\TOKENS_DIRECTORY_PATH";
 	  private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E, MMM dd yyyy").withLocale(Locale.US);
 	  private static List<List<Object>> filteredValues = new ArrayList<List<Object>>();
-	  private static List<List<Object>> filteredValuesWarehouseDetails = new ArrayList<List<Object>>();
 	  private static Map<Integer, Integer> subCheckListSizeByParentID = new HashMap<Integer, Integer>();
 	  /**
 	   * Global instance of the scopes required by this quickstart.

@@ -299,13 +299,7 @@ public class WriteToGoogleSheets {
         	i++;
 	     }
         
-        String rowIndex = "";
-        if("submitForApproval".equalsIgnoreCase(action)){
-        	 rowIndex = "D".concat(String.valueOf(i));
-        }else if("approve".equalsIgnoreCase(action)) {
-       	 	 rowIndex = "E".concat(String.valueOf(i));
-        } 
-        
+        String rowIndex = "D".concat(String.valueOf(i));
         ValueRange body = new ValueRange().setValues(Arrays.asList(Arrays.asList(true)));
     	
       	UpdateValuesResponse result = service.spreadsheets().values()
@@ -313,10 +307,7 @@ public class WriteToGoogleSheets {
 								      	     .setValueInputOption("RAW")
 								      	     .execute();
       	
-      	if("submitForApproval".equalsIgnoreCase(action)){
-      		timeCardDetails.setSubmitForApproval(true);
-      	}
-      	
+      	timeCardDetails.setSubmitForApproval(true);
       	logger.info("Updated row index " + rowIndex);
       	return timeCardDetails;
     }
