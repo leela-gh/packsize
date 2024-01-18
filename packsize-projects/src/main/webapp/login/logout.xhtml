@@ -7,9 +7,24 @@
 	  xmlns:p="http://primefaces.org/ui"
 	  xmlns:ui="http://java.sun.com/jsf/facelets">
 <h:head>
-	<title></title>
+	<style>
+		
+		.ui-datatable tbody td:empty{
+			display: none;
+		}
+	
+		.ui-datatable .ui-datatable-footer {
+			background: #449cc3;
+		}
+		
+		.ui-panelgrid.ui-noborder .ui-panelgrid-cell{
+			background: #449cc3;
+		}
+	</style>
 </h:head>
 <h:body>
+	<h:form>
 		<p:outputLabel style="font-size: 25px" value="Welcome #{login.user}"/><div style="width: 100%;text-align: right"><h:commandLink actionListener="#{login.logout}" value="Logout" immediate="true"/></div>
+	</h:form>
 </h:body>
 </html>
