@@ -88,7 +88,7 @@
 							</p:dataTable>
 							<br></br>
 							<div style="text-align: center">
-								<p:commandButton value="Approve timesheet" disabled="#{userObj.approved}" actionListener="#{timeCardBean.approveOnly(userObj)}" update="timeform:timetableArr"/>
+								<p:commandButton value="Approve timesheet" disabled="#{userObj.approved}" actionListener="#{timeCardBean.approveOnly(userObj)}" update="timeform:timetableArr timeform:messages"/>
 							</div>
 							<br></br>
 		                </div>
@@ -152,7 +152,7 @@
 						<p:remoteCommand name="updateTotals" actionListener="#{timeCardBean.updateTotals}" update="timetable"/>
 						<f:facet name="footer">
 							<div style="text-align: center">
-								<p:commandButton value="Approve" actionListener="#{timeCardBean.approve()}" onclick="PF('dlg2').hide();" update="timeform:timetableArr"/>
+								<p:commandButton value="Approve" actionListener="#{timeCardBean.approve()}" onclick="PF('dlg2').hide();" update="timeform:timetableArr timeform:messages"/>
 							</div>
 						</f:facet>
 					</p:panel>

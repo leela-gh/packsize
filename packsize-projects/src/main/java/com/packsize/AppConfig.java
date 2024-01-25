@@ -12,7 +12,7 @@ public class AppConfig implements WebMvcConfigurer{
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
       registry.addViewController("/")
-          .setViewName("forward:/index.xhtml");
+          .setViewName("forward:/login.xhtml");
       registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 	

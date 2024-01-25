@@ -78,13 +78,16 @@ public class GoogleSheetsUtil {
 		}
 	}
 	
-	public static void writeTimeCardEntryToSheets(TimeCardDetails timeCardDetails, String action) {
+	public static boolean writeTimeCardEntryToSheets(TimeCardDetails timeCardDetails, String action) {
 		logger.info("In writeTimeCardEntryToSheets()");
+		boolean success = true; 
 		try {
 			WriteToGoogleSheets.writeTimeCardEntryToSheets(timeCardDetails,action);
 		} catch (IOException | GeneralSecurityException e) {
+			success = false; 
 			e.printStackTrace();
 		}
+		return success;
 	}
 	
 	public static List<TimeCardDetails> readTimeCardDetailsFromSheets(String name) {
@@ -109,13 +112,17 @@ public class GoogleSheetsUtil {
 		  	}
 	}
 	
-	public static void deleteTimeCardEntryToSheets(TimeCardDetails timeCardDetails) {
+	public static boolean deleteTimeCardEntryToSheets(TimeCardDetails timeCardDetails) {
 		logger.info("In deleteTimeCardEntryToSheets()");
+		
+		boolean success = true; 
 		try {
 			WriteToGoogleSheets.deleteTimeCardEntryToSheets(timeCardDetails);
 		} catch (IOException | GeneralSecurityException e) {
+			success = false; 
 			e.printStackTrace();
 		}
+		return success;
 	}
 	
 	

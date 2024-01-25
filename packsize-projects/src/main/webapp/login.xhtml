@@ -18,13 +18,11 @@
 			</f:facet>
 			<br></br><br></br>
 			<p:outputLabel value="Username" /><p:spacer width="5"/>
-			<p:inputText id="username" value="#{login.user}"></p:inputText>
-			<p:message for="username"></p:message>
+			<p:inputText id="username" value="#{login.user}" required="true" requiredMessage="Enter user name."/>
 			<br></br><br></br>
 			
 			<p:outputLabel value="Password" /><p:spacer width="5"/>
-			<p:inputText id="password" value="#{login.pwd}"></p:inputText>
-			<p:message for="password"></p:message>
+			<p:password id="password" value="#{login.pwd}" required="true" requiredMessage="Enter user password."/>
 			<br></br><br></br>
 			
 			<f:facet name="footer">

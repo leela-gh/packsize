@@ -582,6 +582,44 @@ public class ArticleComponent implements Serializable {
         return designID;
     }
     
+   /* private static String generateEMDesignId(String style){
+
+        String designID = "";
+        switch(style){
+            case "PAD": designID = "1101001"; break;//X1
+            case "RSC": designID = "2010100"; break;
+            case "RSC with Varible Flaps": designID = "201010020542"; break;//X1
+            case "RE TT FL?": designID = "4210000"; break;//X1
+            case "LIBERTY PARTITION SET": designID = "110100110215"; break;//X1
+            case "TRAY": designID = "4540000"; break;//X1
+            case "380815CHGS-PARTITION": designID = "110100110213"; break;
+            case "OPF IA One Side": designID = "403001237"; break;//X1,X2,X3,X4,X5,X6,X7,X8,X9,X10
+            case "HS Corrugated Partition 2": designID = "110100110212"; break;//X1,X2
+            case "HS Corrugated Partition 1": designID = "110100110211"; break;
+            case "Hinged 2 Panel": designID = "900201010062"; break;//X1,X2
+            case "FOL": designID = "2030100"; break;//X1
+            case "Inner Leg Support": designID = "946102312"; break;
+            case "1907510933NL01": designID = "1101001"; break;
+            case "1 Slot Divider": designID = "9001101001984"; break;//X1
+            case "RT IN ED Elbow": designID = "914101014"; break;//X1
+            case "19 Crease Sheet": designID = "1101001001919"; break;
+            case "Cinto Side to Side Insert FOL": designID = "20301233"; break;
+            
+            case "SLE Chair Insert": designID = "50111955"; break;
+            case "HS Tech Retrofit Insert": designID = "9005150"; break;//X1,X2,X3,X4,X5,X6,X7,X8,X9,X10
+            case "RE SL QSE": designID = "422003123"; break;//X1,X2
+            case "Tray SL": designID = "4570000"; break;
+            case "SLE INS": designID = "5011100"; break;//X1,X2
+            case "RE SL HH": designID = "422000"; break;//X1
+            case "Smart Partition A": designID = "905150221"; break;
+            case "Smart Partition B": designID = "905150222"; break;
+            case "Tube Separator": designID = "50111741"; break;//X1
+            default: FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", "Not able to find EM style code "+ style)); break;
+        }
+
+        return designID;
+    } */
+    
     /**
      * Creates space holder for EM machine dimension values
      * @return

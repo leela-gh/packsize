@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -191,28 +193,49 @@ public class TimeCardController implements Serializable{
 									 timeCardDetails.getSatTotal());
 	}
 	
-	protected void save() {
+	protected boolean save() {
 		logger.info("In save() ");
 		
+		boolean success = true;
 		getTimeCardDetails().setUserKey(login.getUser().concat(String.valueOf(getTimeCardDetails().getWeekID())));
 		getTimeCardDetails().setUser(login.getUser());
-		GoogleSheetsUtil.deleteTimeCardEntryToSheets(getTimeCardDetails());
-		GoogleSheetsUtil.writeTimeCardEntryToSheets(getTimeCardDetails(),"save");
+		if(GoogleSheetsUtil.deleteTimeCardEntryToSheets(getTimeCardDetails())) {
+			if(!GoogleSheetsUtil.writeTimeCardEntryToSheets(getTimeCardDetails(),"save")) 
+				success = false; 
+		}else {
+			success = false; 
+		}
+		return success;
 	}
 	
-	protected void submitForApprove() {
+	protected boolean submitForApprove() {
 		logger.info("In submitForApprove() ");
 		
+		boolean success = true;
 		getTimeCardDetails().setUserKey(login.getUser().concat(String.valueOf(getTimeCardDetails().getWeekID())));
-		setTimeCardDetails(GoogleSheetsUtil.updateTimeCardEntryToSheets(getTimeCardDetails(), "submitForApproval"));
+		TimeCardDetails timeCardDetails = GoogleSheetsUtil.updateTimeCardEntryToSheets(getTimeCardDetails(), "submitForApproval");
+		if(timeCardDetails != null) {
+			setTimeCardDetails(timeCardDetails);
+		}else {
+			success = false; 
+		}
+		return success;
 	}
 	
-	protected void approve() {
+	protected boolean approve() {
 		logger.info("In approve() ");
 		
-		GoogleSheetsUtil.deleteTimeCardEntryToSheets(timeCardDetails);
-		GoogleSheetsUtil.writeTimeCardEntryToSheets(timeCardDetails,"ApproverSave");
-		setTimeCardDetailsList(GoogleSheetsUtil.readTimeCardDetailsFromSheets(login.getUser())); 
+		boolean success = true;
+		if(GoogleSheetsUtil.deleteTimeCardEntryToSheets(timeCardDetails)) {
+			if(GoogleSheetsUtil.writeTimeCardEntryToSheets(timeCardDetails,"ApproverSave")) {
+				setTimeCardDetailsList(GoogleSheetsUtil.readTimeCardDetailsFromSheets(login.getUser())); 
+			}else {
+				success = false;
+			}
+		}else {
+			success = false;
+		}
+		return success;
 	}
 	
 	private List<LocalDate> getAllDaysOfTheWeek(int weekNumber, Locale locale) {

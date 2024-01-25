@@ -18,12 +18,15 @@
 			<f:facet name="header">Information</f:facet>
 			This application is used to track time.
 		</p:panel>
+		
 		<p:panel id="timetable" style="text-align:center;width:100%">
 		<br></br>
 		<br></br>
-			<p:commandLink value="Previous Week" actionListener="#{timeCardBean.navDate('prev',timeCardBean.timeCardController.timeCardDetails.weekID)}" update="@form"/>
-			<p:commandLink value="Current Week" actionListener="#{timeCardBean.navDate('current',timeCardBean.timeCardController.timeCardDetails.weekID)}" update="@form"/>
-			<p:commandLink value="Next Week" actionListener="#{timeCardBean.navDate('next',timeCardBean.timeCardController.timeCardDetails.weekID)}" update="@form"/>
+			<p:panelGrid columns="3" styleClass="ui-noborder" style="width:100%;">
+				<p:commandLink value="Previous Week" style="color:white;" actionListener="#{timeCardBean.navDate('prev',timeCardBean.timeCardController.timeCardDetails.weekID)}" update="@form"/>
+				<p:commandLink value="Current Week" style="color:white;" actionListener="#{timeCardBean.navDate('current',timeCardBean.timeCardController.timeCardDetails.weekID)}" update="@form"/>
+				<p:commandLink value="Next Week" style="color:white;" actionListener="#{timeCardBean.navDate('next',timeCardBean.timeCardController.timeCardDetails.weekID)}" update="@form"/>
+			</p:panelGrid>
 			<p:dataTable value="#{timeCardBean.timeCardController.timeCardDetails.timeCardDayList}" var="dayObj">
 				<p:column headerText="Project">
 					<p:inputText size="10" value="#{dayObj.projectName}" disabled="#{timeCardBean.timeCardController.timeCardDetails.submitForApproval}"/>
@@ -80,11 +83,18 @@
 			<p:remoteCommand name="updateTotals" actionListener="#{timeCardBean.updateTotals}" update="@form"/>
 			<f:facet name="footer">
 				<div style="text-align: center">
-					<p:commandButton value="save" actionListener="#{timeCardBean.save()}" disabled="#{timeCardBean.timeCardController.timeCardDetails.submitForApproval}"/>
-					<p:commandButton value="Submit For Approval" disabled="#{timeCardBean.timeCardController.timeCardDetails.submitForApproval}" actionListener="#{timeCardBean.submitForApprove()}" update="@form"/>
+					<p:commandButton value="save" actionListener="#{timeCardBean.save()}" disabled="#{timeCardBean.timeCardController.timeCardDetails.submitForApproval}" update="@form"/>
+					<p:commandButton value="Submit For Approval" disabled="#{timeCardBean.timeCardController.timeCardDetails.submitForApproval}" actionListener="#{timeCardBean.submitForApprove()}" update="@form">
+						<p:confirm header="Confirmation" message="Are you sure you want to proceed?" icon="pi pi-exclamation-triangle"/>
+					</p:commandButton>
 				</div>
 			</f:facet>
 		</p:panel>
+		
+		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" />
+        </p:confirmDialog>
 	</h:form>
 </ui:define>
 </ui:composition>

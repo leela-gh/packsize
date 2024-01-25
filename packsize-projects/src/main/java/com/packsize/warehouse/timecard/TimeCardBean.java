@@ -3,6 +3,7 @@ package com.packsize.warehouse.timecard;
 import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
 import org.apache.logging.log4j.LogManager;
@@ -52,19 +53,31 @@ public class TimeCardBean implements Serializable{
 	public void save() {
 		logger.info("In save()");
 		
-		timeCardController.save();
+		if(timeCardController.save()) {
+			FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Time card saved.")); 
+		}else {
+			FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Time card not saved, contact your administrator.")); 
+		}
 	}
 	
 	public void submitForApprove() {
 		logger.info("In submitForApprove()");
 		
-		timeCardController.submitForApprove();
+		if(timeCardController.submitForApprove()) {
+			FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Time card submitted for approval.")); 
+		}else {
+			FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Time card not submitted, contact your administrator."));
+		}
 	}
 	
 	public void approve() {
 		logger.info("In approve()");
 		
-		timeCardController.approve();
+		if(timeCardController.approve()) {
+			FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Time card approved."));
+		}else {
+			FacesContext.getCurrentInstance().addMessage("messages", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Time card not approved, contact your administrator."));
+		}
 	}
 	
 	public void editAndApprove(TimeCardDetails timeCardDetails) {
