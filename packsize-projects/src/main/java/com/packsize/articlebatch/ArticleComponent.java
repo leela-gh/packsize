@@ -336,7 +336,7 @@ public class ArticleComponent implements Serializable {
     private String[] generateRowDataStructure(boolean printLabel, String[] printHeaders, String[] currentRowData){
         String[] returnArray = currentRowData;
         
-        if(returnArray[2].equalsIgnoreCase("Carton") && returnArray[4].equalsIgnoreCase("1101001") && returnArray[7].isBlank())
+        if(returnArray[2].equalsIgnoreCase("Carton") && (returnArray[4].equalsIgnoreCase("1101001") || returnArray[4].equalsIgnoreCase("1101000")) && returnArray[7].isBlank())
         	returnArray[7] = "0";
 	        
         if(printLabel)
@@ -630,67 +630,67 @@ public class ArticleComponent implements Serializable {
 		Design d1 = new Design();
 		d1.setDesignName("FOL");
 		d1.setDesignID("2030100");
-		d1.setdX1("0");
+		d1.setdX1("2.1");
 		articleDetails.getEmDesigns().add(d1);
 		
 		Design d2 = new Design();
 		d2.setDesignName("HSC");
 		d2.setDesignID("2000100");
-		d2.setdX1("0");
+		d2.setdX1("2.1");
 		articleDetails.getEmDesigns().add(d2);
 		
 		Design d3 = new Design();
 		d3.setDesignName("OPF");
 		d3.setDesignID("4010000");
-		d3.setdX1("0");
+		d3.setdX1("2.1");
 		articleDetails.getEmDesigns().add(d3);
 		
 		Design d4 = new Design();
 		d4.setDesignName("OPF DF");
 		d4.setDesignID("4120000");
-		d4.setdX1("0");
+		d4.setdX1("2.1");
 		articleDetails.getEmDesigns().add(d4);
 		
 		Design d5 = new Design();
 		d5.setDesignName("OPF IA");
 		d5.setDesignID("4030000");
-		d5.setdX1("0");
+		d5.setdX1("2.1");
 		articleDetails.getEmDesigns().add(d5);
 		
 		Design d6 = new Design();
 		d6.setDesignName("PAD/CREASE");
 		d6.setDesignID("1101000");
-		d6.setdX1("0");d6.setdX2("0");d6.setdX3("0");d6.setdX4("0");d6.setdX5("0");d6.setdX6("0");d6.setdX7("0");d6.setdX8("0");d6.setdX9("0");d6.setdX10("0");
+		d6.setdX1("2.1");d6.setdX2("2.1");d6.setdX3("2.1");d6.setdX4("2.1");d6.setdX5("2.1");d6.setdX6("2.1");d6.setdX7("2.1");d6.setdX8("2.1");d6.setdX9("2.1");d6.setdX10("2.1");
 		articleDetails.getEmDesigns().add(d6);
 		
 		Design d7 = new Design();
 		d7.setDesignID("2020100");
 		d7.setDesignName("POL");
-		d7.setdX1("0");d7.setdX2("0");
+		d7.setdX1("2.1");d7.setdX2("2.1");
 		articleDetails.getEmDesigns().add(d7);
 		
 		Design d8 = new Design();
 		d8.setDesignID("4210001");
 		d8.setDesignName("RETT");
-		d8.setdX1("0");d8.setdX2("0");
+		d8.setdX1("2.1");d8.setdX2("2.1");
 		articleDetails.getEmDesigns().add(d8);
 		
 		Design d9 = new Design();
 		d9.setDesignID("2010100");
 		d9.setDesignName("RSC");
-		d9.setdX1("0");
+		d9.setdX1("2.1");
 		articleDetails.getEmDesigns().add(d9);
 		
 		Design d10 = new Design();
 		d10.setDesignID("3310000");
 		d10.setDesignName("TRAY FL");
-		d10.setdX1("0");
+		d10.setdX1("2.1");
 		articleDetails.getEmDesigns().add(d10);
 		
 		Design d11 = new Design();
 		d11.setDesignID("3310001");
 		d11.setDesignName("TRAY FL TOP");
-		d11.setdX1("0");
+		d11.setdX1("2.1");
 		articleDetails.getEmDesigns().add(d11);
 		
 		return articleDetails.getEmDesigns();
@@ -706,8 +706,8 @@ public class ArticleComponent implements Serializable {
                 switch(str[4]){
                     case "2030100": str[9] = articleDetails.getIqDesigns().get(0).getdX1(); break;//X1
                     case "2031102": str[9] = articleDetails.getIqDesigns().get(1).getdX1(); break;//X1
-                    case "1101000": str[9] = articleDetails.getIqDesigns().get(2).getdX1(); str[10] = articleDetails.getIqDesigns().get(1).getdX2(); str[11] = articleDetails.getIqDesigns().get(1).getdX3(); str[12] = articleDetails.getIqDesigns().get(1).getdX4(); str[13] = articleDetails.getIqDesigns().get(1).getdX5(); str[14] = articleDetails.getIqDesigns().get(1).getdX6(); str[15] = articleDetails.getIqDesigns().get(1).getdX7(); str[16] = articleDetails.getIqDesigns().get(1).getdX8(); str[17] = articleDetails.getIqDesigns().get(1).getdX9(); str[18] = articleDetails.getIqDesigns().get(1).getdX10(); break;//X1,X2,X3,X4,X5,X6,X7,X8,X9,X10
-                    case "2021102": str[9] = articleDetails.getIqDesigns().get(3).getdX1(); str[10] = articleDetails.getIqDesigns().get(2).getdX2(); break;//X1,X2
+                    case "1101000": str[9] = articleDetails.getIqDesigns().get(2).getdX1(); str[10] = articleDetails.getIqDesigns().get(2).getdX2(); str[11] = articleDetails.getIqDesigns().get(2).getdX3(); str[12] = articleDetails.getIqDesigns().get(2).getdX4(); str[13] = articleDetails.getIqDesigns().get(2).getdX5(); str[14] = articleDetails.getIqDesigns().get(2).getdX6(); str[15] = articleDetails.getIqDesigns().get(2).getdX7(); str[16] = articleDetails.getIqDesigns().get(2).getdX8(); str[17] = articleDetails.getIqDesigns().get(2).getdX9(); str[18] = articleDetails.getIqDesigns().get(2).getdX10(); break;//X1,X2,X3,X4,X5,X6,X7,X8,X9,X10
+                    case "2021102": str[9] = articleDetails.getIqDesigns().get(3).getdX1(); str[10] = articleDetails.getIqDesigns().get(3).getdX2(); break;//X1,X2
                     case "2310100": str[9] = articleDetails.getIqDesigns().get(4).getdX1(); break;//X1
                     case "2011102": str[9] = articleDetails.getIqDesigns().get(5).getdX1();; break;//X1
                     case "4150000": str[9] = articleDetails.getIqDesigns().get(6).getdX1();; break;//X1
@@ -725,10 +725,11 @@ public class ArticleComponent implements Serializable {
             case "FOL FGF": designID = "2031102"; break;//X1
             case "FPF": designID = "4091000"; break;
             case "FPF CS": designID = "4111000"; break;
-            case "PAD/CREASE": designID = "1101000"; break;//X1,X2,X3,X4,X5,X6,X7,X8,X9,X10
+            case "PAD": designID = "1101000"; break;//X1,X2,X3,X4,X5,X6,X7,X8,X9,X10
             case "POL FGF": designID = "2021102"; break;//X1,X2
             case "RSC CS": designID = "2310100"; break;//X1
             case "RSC": designID = "2011102"; break;//X1
+            case "HSC": designID = "2001103"; break;
             case "TRAY": designID = "3001201"; break;
             case "TRAY TOP": designID = "3001203"; break;
             case "OPF": designID = "4150000"; break;//X1
@@ -748,43 +749,43 @@ public class ArticleComponent implements Serializable {
 		Design fol = new Design();
 		fol.setDesignName("FOL");
 		fol.setDesignID("2030100");
-		fol.setdX1("0");
+		fol.setdX1("2.1");
 		articleDetails.getIqDesigns().add(fol);
 		
 		Design fol_fgl = new Design();
 		fol_fgl.setDesignName("FOL FGF");
 		fol_fgl.setDesignID("2031102");
-		fol_fgl.setdX1("0");
+		fol_fgl.setdX1("2.1");
 		articleDetails.getIqDesigns().add(fol_fgl);
 		
 		Design pad_crease = new Design();
 		pad_crease.setDesignName("PAD/CREASE");
 		pad_crease.setDesignID("1101000");
-		pad_crease.setdX1("0");pad_crease.setdX2("0");pad_crease.setdX3("0");pad_crease.setdX4("0");pad_crease.setdX5("0");pad_crease.setdX6("0");pad_crease.setdX7("0");pad_crease.setdX8("0");pad_crease.setdX9("0");pad_crease.setdX10("0");
+		pad_crease.setdX1("2.1");pad_crease.setdX2("2.1");pad_crease.setdX3("2.1");pad_crease.setdX4("2.1");pad_crease.setdX5("2.1");pad_crease.setdX6("2.1");pad_crease.setdX7("2.1");pad_crease.setdX8("2.1");pad_crease.setdX9("2.1");pad_crease.setdX10("2.1");
 		articleDetails.getIqDesigns().add(pad_crease);
 		
 		Design pol_fgf = new Design();
 		pol_fgf.setDesignName("POL FGF");
 		pol_fgf.setDesignID("2021102");
-		pol_fgf.setdX1("0");pol_fgf.setdX2("0");
+		pol_fgf.setdX1("2.1");pol_fgf.setdX2("2.1");
 		articleDetails.getIqDesigns().add(pol_fgf);
 		
 		Design rsc_cs = new Design();
 		rsc_cs.setDesignName("RSC CS");
 		rsc_cs.setDesignID("2310100");
-		rsc_cs.setdX1("0");
+		rsc_cs.setdX1("2.1");
 		articleDetails.getIqDesigns().add(rsc_cs);
 		
 		Design rsc = new Design();
 		rsc.setDesignName("RSC");
 		rsc.setDesignID("2011102");
-		rsc.setdX1("0");
+		rsc.setdX1("2.1");
 		articleDetails.getIqDesigns().add(rsc);
 		
 		Design opf = new Design();
 		opf.setDesignName("OPF");
 		opf.setDesignID("4150000");
-		opf.setdX1("0");
+		opf.setdX1("2.1");
 		articleDetails.getIqDesigns().add(opf);
 		
 		return articleDetails.getIqDesigns();
@@ -828,7 +829,7 @@ public class ArticleComponent implements Serializable {
 		Design pol_fgf = new Design();
 		pol_fgf.setDesignName("POL FGF");
 		pol_fgf.setDesignID("2010179");
-		pol_fgf.setdX1("0");
+		pol_fgf.setdX1("2.1");
 		articleDetails.getX4Designs().add(pol_fgf);
 		
 		return articleDetails.getX4Designs();
